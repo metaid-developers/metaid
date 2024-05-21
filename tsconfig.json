@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    /* Base Options: */
+
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "es2020",
+    "module": "ESNext",
+    "verbatimModuleSyntax": false,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+
+    /* Strictness */
+    // "strict": true,
+    "noUncheckedIndexedAccess": true,
+
+    /* If transpiling with TypeScript: */
+    // "moduleResolution": "NodeNext",
+    // "module": "NodeNext",
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+
+    "outDir": "dist",
+    "sourceMap": true,
+
+    /* If your code runs in the DOM: */
+    "lib": ["es2022", "dom", "dom.iterable"],
+
+    /* If you're building for a library: */
+    "declaration": true,
+
+    // custom
+    "experimentalDecorators": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vitest/globals"]
+  },
+
+  "include": ["src/**/*", "src/**/*.d.ts"]
+}

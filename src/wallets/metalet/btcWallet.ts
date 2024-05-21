@@ -1,4 +1,5 @@
 import { BtcNetwork } from '@/service/btc'
+import { InscriptionRequest } from '@/types'
 
 export interface WalletStatic {
   create: ((mnemonic: string, derivePath?: string) => Promise<MetaIDWalletForBtc>) | (() => Promise<MetaIDWalletForBtc>)
@@ -26,6 +27,6 @@ export type MetaIDWalletForBtc = {
   // signPsbt(psbtHex: string, options?: any): Promise<string>
   // broadcast(txComposer: TxComposer | TxComposer[]): Promise<{ txid: string } | { txid: string }[]>
   // batchBroadcast(txComposer: TxComposer[]): Promise<{ txid: string }[]>
-  inscribe({ data, options }: { data: any; options?: { noBroadcast: boolean } }): Promise<any>
+  inscribe({ data, options }: { data: InscriptionRequest; options?: { noBroadcast: boolean } }): Promise<any>
   // encrypt(message: string, publicKey: string): Promise<string>;
 }

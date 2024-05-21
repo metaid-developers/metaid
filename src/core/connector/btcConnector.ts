@@ -16,9 +16,37 @@ export type IBtcConnector = {
   user: UserInfo
   hasUser(): boolean
   getUser({ network, currentAddress }: { network: BtcNetwork; currentAddress?: string }): Promise<UserInfo>
-  inscribe<T extends keyof NBD>(inscribeOptions: InscribeOptions[], noBroadcast: T, feeRate?: number): Promise<NBD[T]>
-  updateUserInfo(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<boolean>
-  createUserInfo(body: { name: string; bio?: string; avatar?: string; feeRate?: number }): Promise<boolean>
+  inscribe<T extends keyof NBD>(
+    inscribeOptions: InscribeOptions[],
+    noBroadcast: T,
+    feeRate?: number,
+    service?: {
+      address: string
+      satoshis: string
+    }
+  ): Promise<NBD[T]>
+  updateUserInfo(body?: {
+    name?: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+    service?: {
+      address: string
+      satoshis: string
+    }
+  }): Promise<boolean>
+  createUserInfo(body: {
+    name: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+    service?: {
+      address: string
+      satoshis: string
+    }
+  }): Promise<boolean>
   // createMetaid(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<{
   //   metaid: string
   //   cost: number

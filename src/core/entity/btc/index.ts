@@ -95,17 +95,23 @@ export class BtcEntity {
     options,
     noBroadcast,
     feeRate,
+    service,
   }: {
     options: CreateOptions[]
     noBroadcast: T
     feeRate?: number
+    service?: {
+      address: string
+      satoshis: string
+    }
   }): Promise<NBD[T]> {
     const path = this.schema.path
     // console.log('pin path', path)
     const res = await this.connector.inscribe(
       options.map((d) => ({ ...d, operation: 'create', path })),
       noBroadcast,
-      feeRate
+      feeRate,
+      service
     )
 
     return res

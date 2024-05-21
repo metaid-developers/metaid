@@ -83,7 +83,11 @@ export class BtcConnector implements IBtcConnector {
   public async inscribe<T extends keyof NBD>(
     inscribeOptions: InscribeOptions[],
     noBroadcast: T,
-    feeRate?: number
+    feeRate?: number,
+    service?: {
+      address: string
+      satoshis: string
+    }
   ): Promise<NBD[T]> {
     // const faucetUtxos = await fetchUtxos({
     //   address: address,
@@ -124,6 +128,7 @@ export class BtcConnector implements IBtcConnector {
       revealOutValue: 546,
       metaidDataList,
       changeAddress: this.address,
+      service,
     }
     console.log('request', request, 'noBroadcast', noBroadcast === 'no' ? false : true)
     const res = await this.wallet.inscribe({
@@ -142,6 +147,10 @@ export class BtcConnector implements IBtcConnector {
     bio?: string
     avatar?: string
     feeRate?: number
+    service?: {
+      address: string
+      satoshis: string
+    }
   }): Promise<boolean> {
     let nameRevealId = ''
     let bioRevealId = ''
@@ -151,15 +160,31 @@ export class BtcConnector implements IBtcConnector {
       let nameRes
       if (this.user?.nameId === '') {
         nameRes = await this.inscribe(
-          [{ operation: 'create', body: body?.name, path: `/info/name` }],
+          [
+            {
+              operation: 'create',
+              body: body?.name,
+              path: `/info/name`,
+              flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            },
+          ],
           'no',
-          body?.feeRate ?? 1
+          body?.feeRate ?? 1,
+          body?.service
         )
       } else {
         nameRes = await this.inscribe(
-          [{ operation: 'modify', body: body?.name, path: `@${this?.user?.nameId ?? ''}` }],
+          [
+            {
+              operation: 'modify',
+              body: body?.name,
+              path: `@${this?.user?.nameId ?? ''}`,
+              flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            },
+          ],
           'no',
-          body?.feeRate ?? 1
+          body?.feeRate ?? 1,
+          body?.service
         )
       }
       if (!isNil(nameRes?.revealTxIds[0])) {
@@ -171,15 +196,31 @@ export class BtcConnector implements IBtcConnector {
       let bioRes
       if (this.user?.bioId === '') {
         bioRes = await this.inscribe(
-          [{ operation: 'create', body: body?.bio, path: `/info/bio` }],
+          [
+            {
+              operation: 'create',
+              body: body?.bio,
+              path: `/info/bio`,
+              flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            },
+          ],
           'no',
-          body?.feeRate ?? 1
+          body?.feeRate ?? 1,
+          body?.service
         )
       } else {
         bioRes = await this.inscribe(
-          [{ operation: 'modify', body: body?.bio, path: `@${this?.user?.bioId ?? ''}` }],
+          [
+            {
+              operation: 'modify',
+              body: body?.bio,
+              path: `@${this?.user?.bioId ?? ''}`,
+              flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            },
+          ],
           'no',
-          body?.feeRate ?? 1
+          body?.feeRate ?? 1,
+          body?.service
         )
       }
       if (!isNil(bioRes?.revealTxIds[0])) {
@@ -197,10 +238,12 @@ export class BtcConnector implements IBtcConnector {
               path: `/info/avatar`,
               encoding: 'base64',
               contentType: 'image/jpeg;binary',
+              flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
           'no',
-          body?.feeRate ?? 1
+          body?.feeRate ?? 1,
+          body?.service
         )
       } else {
         avatarRes = await this.inscribe(
@@ -211,10 +254,12 @@ export class BtcConnector implements IBtcConnector {
               path: `@${this?.user?.avatarId ?? ''}`,
               encoding: 'base64',
               contentType: 'image/jpeg;binary',
+              flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
           'no',
-          body?.feeRate ?? 1
+          body?.feeRate ?? 1,
+          body?.service
         )
       }
       if (!isNil(avatarRes?.revealTxIds[0])) {
@@ -230,28 +275,48 @@ export class BtcConnector implements IBtcConnector {
   }
 
   async createUserInfo(body: {
-    network?: BtcNetwork
     name: string
     bio?: string
     avatar?: string
+    network?: BtcNetwork
     feeRate?: number
+    service?: {
+      address: string
+      satoshis: string
+    }
   }): Promise<boolean> {
     let cost = 0
 
     const nameRes = await this.inscribe(
-      [{ operation: 'create', body: body?.name, path: '/info/name' }],
+      [
+        {
+          operation: 'create',
+          body: body?.name,
+          path: '/info/name',
+          flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+        },
+      ],
 
       'no',
-      body?.feeRate ?? 1
+      body?.feeRate ?? 1,
+      body?.service
     )
     cost += Number(nameRes?.revealCost ?? 0) + Number(nameRes?.commitCost ?? 0)
 
     if (!!body?.bio) {
       const bioRes = await this.inscribe(
-        [{ operation: 'create', body: body?.bio, path: '/info/bio' }],
+        [
+          {
+            operation: 'create',
+            body: body?.bio,
+            path: '/info/bio',
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+        ],
 
         'no',
-        body?.feeRate ?? 1
+        body?.feeRate ?? 1,
+        body?.service
       )
       cost += Number(bioRes?.revealCost ?? 0) + Number(bioRes?.commitCost ?? 0)
     }
@@ -264,11 +329,13 @@ export class BtcConnector implements IBtcConnector {
             path: '/info/avatar',
             encoding: 'base64',
             contentType: 'image/jpeg;binary',
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
           },
         ],
 
         'no',
-        body?.feeRate ?? 1
+        body?.feeRate ?? 1,
+        body?.service
       )
       cost += Number(avatarRes?.revealCost ?? 0) + Number(avatarRes?.commitCost ?? 0)
     }

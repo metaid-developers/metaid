@@ -11,7 +11,7 @@ import type { EntitySchema } from '@/metaid-entities/entity.js'
 import { BtcEntity as IBtcEntity } from './core/entity/btc/index.js'
 import type { MetaIDWalletForBtc as IMetaletWalletForBtc } from '@/wallets/metalet/btcWallet.js'
 import type { IBtcConnector } from '@/core/connector/btcConnector.js'
-import type { CreateOptions } from '@/types/index.js'
+import type { CreateOptions, InscriptionRequest } from '@/types/index.js'
 
 export {
   Psbt,
@@ -25,5 +25,5 @@ export {
   MetaletWalletForMvc,
   MetaletWalletForBtc,
 }
-export type { EntitySchema, CreateOptions, IMetaletWalletForBtc, IBtcConnector }
+export type { EntitySchema, CreateOptions, IMetaletWalletForBtc, IBtcConnector, InscriptionRequest }
 export { IBtcEntity }

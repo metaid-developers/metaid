@@ -229,7 +229,7 @@ await _wallet.signPsbt({
 ### inscribe(method)
 
 ```ts
-export type Operation = 'init' | 'create' | 'modify' | 'revoke'
+export type Operation =  'create' | 'modify' | 'revoke'
 export type Encryption = '0' | '1' | '2'
 export type MetaidData = {
   operation: Operation
@@ -326,7 +326,7 @@ const user: UserInfo = _btcConnecto.user
 ### connector inscrble method
 
 ```typescript
-type Operation = 'init' | 'create' | 'modify'
+type Operation = 'create' | 'modify' | 'revoke'
 type InscribeOptions= {
   operation: Operation
   body?: string | Buffer

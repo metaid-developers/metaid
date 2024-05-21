@@ -60,7 +60,7 @@ const BASE_METALET_TEST_URL = `https://www.metalet.space/wallet-api/v3`
 
 const BASE_METAID_URL_TESTNET = `https://man-test.metaid.io`
 const BASE_METAID_URL_REGEST = `https://man.somecode.link`
-const BASE_METAID_URL_MAINNET = ``
+const BASE_METAID_URL_MAINNET = `https://man.metaid.io`
 
 const MAN_BASE_URL_MAPPING = {
   testnet: BASE_METAID_URL_TESTNET,

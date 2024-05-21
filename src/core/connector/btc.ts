@@ -117,6 +117,7 @@ export class BtcConnector implements IBtcConnector {
         path: inp?.path,
         contentType: contentType,
         encryption: inp?.encryption,
+        flag: inp?.flag,
         version: '1.0.0', //this._schema.versions[0].version.toString(),
         encoding,
       }

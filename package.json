@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@bitcoin-js/tiny-secp256k1-asmjs": "^2.2.3",
+    "@metaid/metaid": "^1.2.7",
     "@metaid/metaid-cli": "0.0.2",
     "@okxweb3/crypto-lib": "^1.0.1",
     "@scure/bip39": "^1.2.2",

@@ -62,6 +62,7 @@ export class BtcEntity {
     const path = this.schema.path
     return await getPinDetailByPid({ pid, network: network ?? this.connector.network })
   }
+
   public async list({ page, limit, network }: { page: number; limit: number; network?: BtcNetwork }): Promise<Pin[]> {
     // const pins = await getPinListByAddress({ address: 'tb1qlwvue3swm044hqf7s3ww8um2tuh0ncx65a6yme' })
     const path = this.schema.path

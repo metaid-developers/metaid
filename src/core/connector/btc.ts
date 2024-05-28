@@ -303,7 +303,7 @@ export class BtcConnector implements IBtcConnector {
       body?.service
     )
     cost += Number(nameRes?.revealCost ?? 0) + Number(nameRes?.commitCost ?? 0)
-
+    console.log('inscribe nameRes', nameRes)
     if (!!body?.bio) {
       const bioRes = await this.inscribe(
         [
@@ -339,6 +339,7 @@ export class BtcConnector implements IBtcConnector {
         body?.service
       )
       cost += Number(avatarRes?.revealCost ?? 0) + Number(avatarRes?.commitCost ?? 0)
+      console.log('inscribe avatarRes', avatarRes)
     }
 
     return !isNil(nameRes?.revealTxIds) && !isEmpty(nameRes?.revealTxIds)

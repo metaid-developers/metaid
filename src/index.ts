@@ -1,7 +1,7 @@
 import { define } from '@/factories/define.js'
 import { useMvc, useBtc } from '@/factories/use.js'
 import { mvcConnect, btcConnect } from '@/factories/connect.js'
-import { LocalWallet } from '@/wallets/localwallet/local.js'
+// import { LocalWallet } from '@/wallets/localwallet/local.js'
 import { MetaletWalletForMvc } from '@/wallets/metalet/mvc.js'
 import { MetaletWalletForBtc } from './wallets/metalet/btc.js'
 import { Psbt } from '@/utils/btc-inscribe/bitcoinjs-lib/psbt.js'
@@ -21,7 +21,7 @@ export {
   useBtc,
   mvcConnect,
   btcConnect,
-  LocalWallet,
+  //LocalWallet,
   MetaletWalletForMvc,
   MetaletWalletForBtc,
 }

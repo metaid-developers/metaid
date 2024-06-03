@@ -14,6 +14,10 @@ const buzzSchema: EntitySchema = {
           type: 'string',
         },
         {
+          name: 'contentType',
+          type: 'string',
+        },
+        {
           name: 'attachments',
           type: 'array',
         },

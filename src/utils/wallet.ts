@@ -2,7 +2,7 @@ import { mvc } from 'meta-contract'
 import * as ecc from '@bitcoin-js/tiny-secp256k1-asmjs'
 import bitcoinjs from 'bitcoinjs-lib'
 import BIP32Factory, { type BIP32Interface } from 'bip32'
-import type { AddressType, Network } from '@/types/index.js'
+import type { AddressType, MvcNetwork as Network } from '@/types/index.js'
 import bip39 from '@scure/bip39'
 import { raise } from './helper.js'
 // function deriveMvcAddress(mnemonic: string, path: string, network: Network): string {

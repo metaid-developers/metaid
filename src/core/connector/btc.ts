@@ -46,17 +46,9 @@ export class BtcConnector implements IBtcConnector {
     const connector = new BtcConnector(wallet)
 
     if (wallet) {
-      // ask api for metaid and user
-      // const rootPin = await getRootPinByAddress({ address: wallet.address })
-      // const metaid = rootPin?.rootTxId
-      // if (!!metaid) {
-      //   connector.metaid = metaid
-
-      //   const user = await getInfoByAddress({ address: wallet.address })
-      //   connector.user = user
-      // }
       connector.metaid = sha256(Buffer.from(wallet.address)).toString('hex')
 
+      // ask api for  user
       const metaidInfo = await getInfoByAddress({ address: wallet.address, network: network ?? wallet.network })
       if (!isNil(metaidInfo)) {
         // connector.metaid = metaidInfo.rootTxId + 'i0'

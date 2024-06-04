@@ -9,10 +9,12 @@ import { loadBtc, loadMvc } from '@/factories/load.js'
 import { errors } from '@/data/errors.js'
 import type { Blockchain, MetaidData, UserInfo } from '@/types/index.js'
 import { IMvcConnector, MvcConnectorStatic } from './mvcConnector'
-import { getInfoByAddress } from '@/service/btc'
+import { BtcNetwork, getInfoByAddress } from '@/service/btc'
 import { isNil, isEmpty } from 'ramda'
 import { InscribeOptions } from '../entity/btc'
 import { buildOpReturnV2 } from '@/utils/opreturn-builder'
+import { sha256 } from 'bitcoinjs-lib/src/crypto'
+
 @staticImplements<MvcConnectorStatic>()
 export class MvcConnector implements IMvcConnector {
   private _isConnected: boolean
@@ -35,16 +37,17 @@ export class MvcConnector implements IMvcConnector {
     return this.wallet?.xpub || ''
   }
 
-  public static async create(wallet?: MetaIDWalletForMvc) {
+  public static async create({ wallet, network }: { wallet?: MetaIDWalletForMvc; network: BtcNetwork }) {
     const connector = new MvcConnector(wallet)
 
     if (wallet) {
-      // // ask api for metaid (to do : switch api to mvc)
-      // const metaidInfo = await getInfoByAddress({ address: wallet.address })
-      // if (!isNil(metaidInfo.rootTxId)) {
-      //   connector.metaid = metaidInfo.rootTxId + 'i0'
-      //   connector.user = metaidInfo
-      // }
+      connector.metaid = sha256(Buffer.from(wallet.address)).toString('hex')
+
+      // ask api for user (to do : switch api to mvc)
+      const metaidInfo = await getInfoByAddress({ address: wallet.address, network: network ?? wallet.network })
+      if (!isNil(metaidInfo)) {
+        connector.user = metaidInfo
+      }
     }
 
     return connector
@@ -73,7 +76,12 @@ export class MvcConnector implements IMvcConnector {
 
   async createPin(
     metaidData: MetaidData,
-    options?: { signMessage: string; serialAction?: 'combo' | 'finish'; transactions?: Transaction[] }
+    options: {
+      signMessage?: string
+      serialAction?: 'combo' | 'finish'
+      transactions?: Transaction[]
+      network: BtcNetwork
+    }
   ) {
     console.log('metaidData', metaidData)
 
@@ -90,7 +98,7 @@ export class MvcConnector implements IMvcConnector {
 
     console.log('wallet address', this.wallet.address)
     pinTxComposer.appendP2PKHOutput({
-      address: new mvc.Address(this.wallet.address, 'testnet' as any),
+      address: new mvc.Address(this.wallet.address, options.network),
       satoshis: 546,
     })
 
@@ -113,151 +121,22 @@ export class MvcConnector implements IMvcConnector {
     // for (const txComposer of payRes) {
     //   await this.connector.broadcast(txComposer)
     // }
-    await this.batchBroadcast(payRes)
+    await this.batchBroadcast({ txComposer: payRes, network: options.network })
 
     for (const p of payRes) {
       const txid = p.getTxId()
-      const isValid = !!(await fetchTxid(txid))
+      console.log('mvc pin txid: ' + txid)
+      const isValid = !!(await fetchTxid({ txid, network: options.network }))
       if (isValid) {
         await notify({ txHex: p.getRawHex() })
       } else {
         throw new Error('txid is not valid')
       }
     }
+
     return {
       txid: payRes[payRes.length - 1].getTxId(),
     }
-  }
-
-  async createMetaid(body?: { name?: string; avatar?: string }): Promise<{ metaid: string }> {
-    const res = await this.createPin({
-      operation: 'init',
-      body: JSON.stringify(body),
-      revealAddr: this.wallet.address,
-    })
-    return { metaid: res?.txid + 'i0' }
-    // let user: any = {}
-    // if (this.metaid) {
-    //   user = await fetchUser(this.metaid)
-    //   if (user && user.metaid && user.protocolTxid && (user.infoTxid && user).name) {
-    //     this.user = user
-
-    //     return
-    //   }
-    // }
-
-    // // check if has enough balance
-    // const biggestUtxoAmount = await fetchUtxos({ address: this.address }).then((utxos) => {
-    //   return utxos.length
-    //     ? utxos.reduce((prev, curr) => {
-    //         return prev.value > curr.value ? prev : curr
-    //       }, utxos[0]).value
-    //     : 0
-    // })
-
-    // if (biggestUtxoAmount < LEAST_AMOUNT_TO_CREATE_METAID) {
-    //   throw new Error(errors.NOT_ENOUGH_BALANCE_TO_CREATE_METAID)
-    // }
-
-    // if (!this.isMetaidValid()) {
-    //   let allTransactions: Transaction[] = []
-    //   let tempUser = {
-    //     metaid: '',
-    //     protocolTxid: '',
-    //     infoTxid: '',
-    //     name: '',
-    //   }
-    //   if (!user?.metaid) {
-    //     // console.log('run in userMetaid')
-    //     const Metaid = await this.use('metaid-root')
-    //     const publicKey = await this.getPublicKey('/0/0')
-    //     const tx1 = await Metaid.createMetaidRoot(
-    //       {
-    //         publicKey,
-    //       },
-    //       Metaid.schema.nodeName
-    //     )
-    //     allTransactions = allTransactions.concat(tx1)
-
-    //     // this.metaid = tx1[tx1.length - 1].txComposer.getTxId()
-    //     tempUser.metaid = tx1[tx1.length - 1].txComposer.getTxId()
-    //   }
-    //   await sleep(1000)
-    //   if (!user?.protocolTxid) {
-    //     const Protocols = await this.use('metaid-protocol')
-    //     const publicKey = await this.getPublicKey('/0/2')
-    //     const tx2 = await Protocols.createMetaidRoot(
-    //       {
-    //         publicKey,
-    //         txid: tempUser.metaid,
-    //       },
-    //       Protocols.schema.nodeName
-    //     )
-    //     allTransactions = allTransactions.concat(tx2)
-    //     tempUser.protocolTxid = tx2[tx2.length - 1].txComposer.getTxId()
-    //   }
-    //   if (!user?.infoTxid) {
-    //     const Info = await this.use('metaid-info')
-    //     const publicKey = await this.getPublicKey('/0/1')
-    //     const tx3 = await Info.createMetaidRoot(
-    //       {
-    //         publicKey,
-    //         txid: tempUser.metaid,
-    //       },
-    //       Info.schema.nodeName
-    //     )
-    //     allTransactions = allTransactions.concat(tx3)
-    //     tempUser.infoTxid = tx3[tx3.length - 1].txComposer.getTxId()
-    //   }
-    //   if (!user?.name) {
-    //     const Name = await this.use('metaid-name')
-    //     const address = await this.getAddress('/0/1')
-    //     const publicKey = await this.getPublicKey('/0/1')
-    //     const useName = body?.name ? body.name : DEFAULT_USERNAME
-    //     const tx4 = await Name.createMetaidRoot(
-    //       {
-    //         address,
-    //         publicKey,
-    //         txid: tempUser.infoTxid,
-    //         body: useName,
-    //       },
-    //       Name.schema.nodeName
-    //     )
-
-    //     allTransactions = allTransactions.concat(tx4)
-    //     tempUser.name = useName
-    //   }
-    //   // this.user = user
-    //   const payRes = await this.wallet.pay({
-    //     transactions: allTransactions,
-    //   })
-
-    //   await this.wallet.batchBroadcast(payRes)
-
-    //   sleep(1000)
-    //   for (const p of payRes) {
-    //     const txid = p.getTxId()
-    //     const isValid = !!(await fetchTxid(txid))
-    //     // console.log('bbbbb', isValid, await fetchTxid(txid))
-    //     if (isValid) {
-    //       await notify({ txHex: p.getRawHex() })
-    //     } else {
-    //       throw new Error('txid is not valid')
-    //     }
-    //   }
-
-    //   if (user?.metaId) {
-    //     this.metaid = user.metaid
-    //   } else {
-    //     this.metaid = payRes[0].getTxId()
-    //   }
-    // }
-    // await sleep(1000)
-    // const refetchUser = await fetchUser(this.metaid)
-    // this.user = refetchUser
-    // console.log({ refetchUser })
-    // return refetchUser
-    return { metaid: 'abc' }
   }
 
   // metaid
@@ -302,12 +181,12 @@ export class MvcConnector implements IMvcConnector {
     return this.wallet.send(toAddress, amount)
   }
 
-  broadcast(txComposer: TxComposer) {
-    return this.wallet.broadcast(txComposer)
+  broadcast({ txComposer, network }: { txComposer: TxComposer; network: BtcNetwork }) {
+    return this.wallet.broadcast({ txComposer, network })
   }
 
-  batchBroadcast(txComposer: TxComposer[]) {
-    return this.wallet.batchBroadcast(txComposer)
+  batchBroadcast({ txComposer, network }: { txComposer: TxComposer[]; network: BtcNetwork }) {
+    return this.wallet.batchBroadcast({ txComposer, network })
   }
 
   getPublicKey(path?: string) {

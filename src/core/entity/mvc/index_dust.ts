@@ -226,7 +226,7 @@ export class MvcEntity {
     // for (const txComposer of payRes) {
     //   await this.connector.broadcast(txComposer)
     // }
-    await this.connector.batchBroadcast(payRes)
+    await this.connector.batchBroadcast({ txComposer: payRes, network: 'testnet' })
     await notify({ txHex: payRes[payRes.length - 1].getRawHex() })
 
     return {
@@ -435,7 +435,7 @@ export class MvcEntity {
     // for (const txComposer of payRes) {
     //   await this.connector.broadcast(txComposer)
     // }
-    await this.connector.batchBroadcast(payRes)
+    await this.connector.batchBroadcast({ txComposer: payRes, network: 'testnet' })
 
     for (const p of payRes) {
       const txid = p.getTxId()

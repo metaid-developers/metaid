@@ -3,9 +3,10 @@ import { EntitySchema } from '@/metaid-entities/entity'
 import { MvcEntity } from '../entity/mvc'
 import { UserInfo } from '@/types'
 import { MetaIDWalletForMvc } from '@/wallets/metalet/mvcWallet'
+import { BtcNetwork } from '@/service/btc'
 
 export interface MvcConnectorStatic {
-  create: (wallet?: MetaIDWalletForMvc) => Promise<IMvcConnector>
+  create: ({ wallet, network }: { wallet?: MetaIDWalletForMvc; network: BtcNetwork }) => Promise<IMvcConnector>
 }
 
 export type IMvcConnector = {
@@ -15,9 +16,7 @@ export type IMvcConnector = {
   hasUser(): boolean
   getUser(currentAddress?: string): Promise<UserInfo>
   updateUserInfo(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<boolean>
-  createMetaid(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<{
-    metaid: string
-  }>
+
   hasMetaid(): boolean
   getMetaid(): string
   use(entitySymbol: string): Promise<MvcEntity>

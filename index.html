@@ -48,9 +48,7 @@
             <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="createMetaidForBTC">
               BTC Create MetaID
             </button>
-            <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="createMetaidForMVC">
-              MVC Create MetaID
-            </button>
+            <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="createUserForMVC">MVC Create User</button>
             <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="debug">Debug</button>
           </div>
 
@@ -264,12 +262,14 @@
             const res = await connector.createMetaid({ name: 'ttb' }).catch((error) => console.log('error html', error))
             console.log(res)
           }
-          const createMetaidForMVC = async () => {
+          const createUserForMVC = async () => {
             const _wallet = await MetaletWalletForMvc.create()
-            const connector = await mvcConnect({ wallet: _wallet, network: 'testnet' })
+            const mvcConnector = await mvcConnect({ wallet: _wallet, network: 'testnet' })
             console.log({ connector })
-            const res = await connector.createMetaid().catch((error) => console.log('error html', error))
-            console.log('create metaid res', res)
+            const res = await mvcConnector
+              .createUserInfo({ name: 'zico' })
+              .catch((error) => console.log('error mvc create user', error))
+            console.log('create mvc metaid-user res', res)
           }
 
           return {
@@ -290,7 +290,7 @@
             getPublicKey,
             send2k,
             createMetaidForBTC,
-            createMetaidForMVC,
+            createUserForMVC,
             likeTheFirst,
             btcAddress,
             debug,

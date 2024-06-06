@@ -164,7 +164,7 @@ export class LocalWallet implements MetaIDConnectWallet {
 
   public async pay({ transactions }: { transactions: Transaction[] }) {
     const address = this.address
-    let usableUtxos = (await fetchUtxos({ address })).map((u) => {
+    let usableUtxos = (await fetchUtxos({ address, network: 'testnet' })).map((u) => {
       return {
         txId: u.txid,
         outputIndex: u.outIndex,

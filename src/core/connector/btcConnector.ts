@@ -1,4 +1,4 @@
-import { NBD } from './btc'
+import { InscribeResultForIfBroadcasting, InscribeResultForYesBroadcast } from './btc'
 import { BtcEntity, InscribeOptions } from '../entity/btc'
 import { EntitySchema } from '@/metaid-entities/entity'
 import { MetaIDWalletForBtc } from '@/wallets/metalet/btcWallet'
@@ -16,7 +16,7 @@ export type IBtcConnector = {
   user: UserInfo
   hasUser(): boolean
   getUser({ network, currentAddress }: { network: BtcNetwork; currentAddress?: string }): Promise<UserInfo>
-  inscribe<T extends keyof NBD>(
+  inscribe<T extends keyof InscribeResultForIfBroadcasting>(
     inscribeOptions: InscribeOptions[],
     noBroadcast: T,
     feeRate?: number,
@@ -24,7 +24,7 @@ export type IBtcConnector = {
       address: string
       satoshis: string
     }
-  ): Promise<NBD[T]>
+  ): Promise<InscribeResultForIfBroadcasting[T]>
   updateUserInfo(body?: {
     name?: string
     bio?: string
@@ -35,7 +35,11 @@ export type IBtcConnector = {
       address: string
       satoshis: string
     }
-  }): Promise<boolean>
+  }): Promise<{
+    nameRes: InscribeResultForYesBroadcast | undefined
+    bioRes: InscribeResultForYesBroadcast | undefined
+    avatarRes: InscribeResultForYesBroadcast | undefined
+  }>
   createUserInfo(body: {
     name: string
     bio?: string
@@ -46,7 +50,11 @@ export type IBtcConnector = {
       address: string
       satoshis: string
     }
-  }): Promise<boolean>
+  }): Promise<{
+    nameRes: InscribeResultForYesBroadcast
+    bioRes: InscribeResultForYesBroadcast | undefined
+    avatarRes: InscribeResultForYesBroadcast | undefined
+  }>
   // createMetaid(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<{
   //   metaid: string
   //   cost: number

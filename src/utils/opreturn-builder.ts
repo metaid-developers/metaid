@@ -11,7 +11,7 @@ type OpReturnV2 = [
   string | Buffer | undefined,
 ]
 
-export function buildOpReturnV2(metaidData: MetaidData): OpReturnV2 {
+export function buildOpReturnV2(metaidData: Omit<MetaidData, 'revealAddr'>): OpReturnV2 {
   const res1 = ['testid', metaidData.operation]
   let res2 = []
   if (metaidData.operation !== 'init') {

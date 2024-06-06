@@ -11,7 +11,7 @@ import { Psbt } from '../../../utils/btc-inscribe/bitcoinjs-lib/psbt.js'
 import * as bitcoin from '../../../utils/btc-inscribe/bitcoinjs-lib/index.js'
 import { BtcNetwork, fetchUtxos, getAllPinByPath, getPinDetailByPid, getPinListByAddress, Pin } from '@/service/btc.js'
 import { errors } from '@/data/errors.js'
-import type { BtcConnector, NBD } from '@/core/connector/btc.js'
+import type { BtcConnector, InscribeResultForIfBroadcasting } from '@/core/connector/btc.js'
 import { isNil } from 'ramda'
 
 import BIP32Factory, { type BIP32Interface } from 'bip32'
@@ -113,7 +113,7 @@ export class BtcEntity {
   ///////////////////////////////////////// to be deleted method ///////////////////////////////////
 
   @connected
-  public async create<T extends keyof NBD>({
+  public async create<T extends keyof InscribeResultForIfBroadcasting>({
     options,
     noBroadcast,
     feeRate,
@@ -126,7 +126,7 @@ export class BtcEntity {
       address: string
       satoshis: string
     }
-  }): Promise<NBD[T]> {
+  }): Promise<InscribeResultForIfBroadcasting[T]> {
     const path = this.schema.path
     // console.log('pin path', path)
     const res = await this.connector.inscribe(

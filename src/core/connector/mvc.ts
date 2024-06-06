@@ -15,6 +15,16 @@ import { InscribeOptions } from '../entity/btc'
 import { buildOpReturnV2 } from '@/utils/opreturn-builder'
 import { sha256 } from 'bitcoinjs-lib/src/crypto'
 
+export type CreatePinResult =
+  | {
+      transactions: Transaction[]
+      txid?: undefined
+    }
+  | {
+      txid: string
+      transactions?: undefined
+    }
+
 @staticImplements<MvcConnectorStatic>()
 export class MvcConnector implements IMvcConnector {
   private _isConnected: boolean
@@ -62,27 +72,23 @@ export class MvcConnector implements IMvcConnector {
   //   return this.hasUser() && !!this.user.metaid && !!this.user.protocolTxid && !!this.user.infoTxid && !!this.user.name
   // }
 
-  async getUser(currentAddress?: string) {
+  async getUser({ network, currentAddress }: { network: BtcNetwork; currentAddress?: string }) {
     if (!!currentAddress) {
-      return await getInfoByAddress({ address: currentAddress, network: 'testnet' })
+      return await getInfoByAddress({ address: currentAddress, network })
     } else {
-      return await getInfoByAddress({ address: this.address, network: 'testnet' })
+      return await getInfoByAddress({ address: this.address, network })
     }
   }
 
-  async updateUserInfo(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<boolean> {
-    return true
-  }
-
   async createPin(
-    metaidData: MetaidData,
+    metaidData: Omit<MetaidData, 'revealAddr'>,
     options: {
       signMessage?: string
       serialAction?: 'combo' | 'finish'
       transactions?: Transaction[]
       network: BtcNetwork
     }
-  ) {
+  ): Promise<CreatePinResult> {
     console.log('metaidData', metaidData)
 
     if (!this.isConnected) {
@@ -90,7 +96,7 @@ export class MvcConnector implements IMvcConnector {
     }
     const transactions: Transaction[] = options?.transactions ?? []
 
-    // if (!(await checkBalance(this.wallet.address))) {
+    // if (!(await checkBalance({ address: this.wallet.address, network: options?.network ?? 'testnet' }))) {
     //   throw new Error(errors.NOT_ENOUGH_BALANCE)
     // }
 
@@ -110,6 +116,7 @@ export class MvcConnector implements IMvcConnector {
       txComposer: pinTxComposer,
       message: 'Create Pin',
     })
+
     if (options?.serialAction === 'combo') {
       return { transactions }
     }
@@ -137,6 +144,157 @@ export class MvcConnector implements IMvcConnector {
     return {
       txid: payRes[payRes.length - 1].getTxId(),
     }
+  }
+
+  async updateUserInfo(body?: {
+    name?: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+  }): Promise<{
+    nameRes: CreatePinResult | undefined
+    bioRes: CreatePinResult | undefined
+    avatarRes: CreatePinResult | undefined
+  }> {
+    let nameRes: CreatePinResult | undefined
+    let bioRes: CreatePinResult | undefined
+    let avatarRes: CreatePinResult | undefined
+
+    // {
+    //   operation: 'create',
+    //   body: body.name,
+    //   path: '/info/name',
+    //   flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+    // },
+    // { network: body?.network ?? 'testnet' }
+
+    // path 传@pinId
+    if (body?.name !== this.user?.name && !isNil(body?.name) && !isEmpty(body?.name)) {
+      if (this.user?.nameId === '') {
+        nameRes = await this.createPin(
+          {
+            operation: 'create',
+            body: body?.name,
+            path: `/info/name`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      } else {
+        nameRes = await this.createPin(
+          {
+            operation: 'modify',
+            body: body?.name,
+            path: `@${this?.user?.nameId ?? ''}`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+
+          { network: body?.network ?? 'testnet' }
+        )
+      }
+    }
+    if (body?.bio !== this.user?.bio && !isNil(body?.bio) && !isEmpty(body?.bio)) {
+      console.log('run in bio')
+
+      if (this.user?.bioId === '') {
+        bioRes = await this.createPin(
+          {
+            operation: 'create',
+            body: body?.bio,
+            path: `/info/bio`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+
+          { network: body?.network ?? 'testnet' }
+        )
+      } else {
+        bioRes = await this.createPin(
+          {
+            operation: 'modify',
+            body: body?.bio,
+            path: `@${this?.user?.bioId ?? ''}`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      }
+    }
+    if (body?.avatar !== this.user?.avatar && !isNil(body?.avatar) && !isEmpty(body?.avatar)) {
+      if (this.user?.avatarId === '') {
+        avatarRes = await this.createPin(
+          {
+            operation: 'create',
+            body: body?.avatar,
+            path: `/info/avatar`,
+            encoding: 'base64',
+            contentType: 'image/jpeg;binary',
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      } else {
+        avatarRes = await this.createPin(
+          {
+            operation: 'modify',
+            body: body?.avatar,
+            path: `@${this?.user?.avatarId ?? ''}`,
+            encoding: 'base64',
+            contentType: 'image/jpeg;binary',
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      }
+    }
+
+    return { nameRes, bioRes, avatarRes }
+  }
+  async createUserInfo(body: {
+    name: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+  }): Promise<{
+    nameRes: CreatePinResult
+    bioRes: CreatePinResult | undefined
+    avatarRes: CreatePinResult | undefined
+  }> {
+    let bioRes: CreatePinResult | undefined
+    let avatarRes: CreatePinResult | undefined
+    const nameRes = await this.createPin(
+      {
+        operation: 'create',
+        body: body.name,
+        path: '/info/name',
+        flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+      },
+      { network: body?.network ?? 'testnet' }
+    )
+    if (!isEmpty(body?.bio ?? '')) {
+      bioRes = await this.createPin(
+        {
+          operation: 'create',
+          body: body.name,
+          path: '/info/bio',
+          flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+        },
+        { network: body?.network ?? 'testnet' }
+      )
+    }
+    if (!isEmpty(body?.avatar ?? '')) {
+      avatarRes = await this.createPin(
+        {
+          operation: 'create',
+          body: body?.avatar,
+          path: '/info/avatar',
+          flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+        },
+        { network: body?.network ?? 'testnet' }
+      )
+    }
+    return { nameRes, bioRes, avatarRes }
   }
 
   // metaid

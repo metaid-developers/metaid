@@ -1,9 +1,10 @@
 // import { UserInfo } from '@/service/btc'
 import { EntitySchema } from '@/metaid-entities/entity'
 import { MvcEntity } from '../entity/mvc'
-import { UserInfo } from '@/types'
-import { MetaIDWalletForMvc } from '@/wallets/metalet/mvcWallet'
+import { MetaidData, UserInfo } from '@/types'
+import { MetaIDWalletForMvc, Transaction } from '@/wallets/metalet/mvcWallet'
 import { BtcNetwork } from '@/service/btc'
+import { CreatePinResult } from './mvc'
 
 export interface MvcConnectorStatic {
   create: ({ wallet, network }: { wallet?: MetaIDWalletForMvc; network: BtcNetwork }) => Promise<IMvcConnector>
@@ -14,8 +15,38 @@ export type IMvcConnector = {
   address: string
   user: UserInfo
   hasUser(): boolean
-  getUser(currentAddress?: string): Promise<UserInfo>
-  updateUserInfo(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<boolean>
+  getUser({ network, currentAddress }: { network: BtcNetwork; currentAddress?: string }): Promise<UserInfo>
+  createPin(
+    metaidData: MetaidData,
+    options: {
+      signMessage?: string
+      serialAction?: 'combo' | 'finish'
+      transactions?: Transaction[]
+      network: BtcNetwork
+    }
+  ): Promise<CreatePinResult>
+  createUserInfo(body: {
+    name: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+  }): Promise<{
+    nameRes: CreatePinResult
+    bioRes: CreatePinResult | undefined
+    avatarRes: CreatePinResult | undefined
+  }>
+  updateUserInfo(body?: {
+    name?: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+  }): Promise<{
+    nameRes: CreatePinResult | undefined
+    bioRes: CreatePinResult | undefined
+    avatarRes: CreatePinResult | undefined
+  }>
 
   hasMetaid(): boolean
   getMetaid(): string

@@ -1,3 +1,4 @@
+import { BtcNetwork } from '@/service/btc'
 import { TxComposer } from 'meta-contract'
 
 export interface WalletStatic {
@@ -13,7 +14,7 @@ export type Transaction = {
 export interface MetaIDWalletForMvc {
   address: string
   xpub: string
-  // network: Network
+  network: BtcNetwork
   hasAddress(): boolean
 
   getAddress({ path }: { path?: string }): Promise<string>
@@ -32,8 +33,20 @@ export interface MetaIDWalletForMvc {
     txid: string
   }>
 
-  broadcast(txComposer: TxComposer | TxComposer[]): Promise<{ txid: string } | { txid: string }[]>
-  batchBroadcast(txComposer: TxComposer[]): Promise<{ txid: string }[]>
+  broadcast({
+    txComposer,
+    network,
+  }: {
+    txComposer: TxComposer | TxComposer[]
+    network: BtcNetwork
+  }): Promise<{ txid: string } | { txid: string }[]>
+  batchBroadcast({
+    txComposer,
+    network,
+  }: {
+    txComposer: TxComposer[]
+    network: BtcNetwork
+  }): Promise<{ txid: string }[]>
 
   // encrypt(message: string, publicKey: string): Promise<string>;
 }

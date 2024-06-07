@@ -46,4 +46,4 @@ export type InscriptionRequest = {
   }
 }
 
-export type CreateOptions = Omit<MetaidData, 'revealAddr' | 'operation' | 'path'>
+export type SubMetaidData = Omit<MetaidData, 'revealAddr' | 'operation' | 'path'>

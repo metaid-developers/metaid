@@ -11,14 +11,14 @@ import { Psbt } from '../../../utils/btc-inscribe/bitcoinjs-lib/psbt.js'
 import * as bitcoin from '../../../utils/btc-inscribe/bitcoinjs-lib/index.js'
 import { BtcNetwork, fetchUtxos, getAllPinByPath, getPinDetailByPid, getPinListByAddress, Pin } from '@/service/btc.js'
 import { errors } from '@/data/errors.js'
-import type { BtcConnector, NBD } from '@/core/connector/btc.js'
+import type { BtcConnector, InscribeResultForIfBroadcasting } from '@/core/connector/btc.js'
 import { isNil } from 'ramda'
 
 import BIP32Factory, { type BIP32Interface } from 'bip32'
 import * as bip39 from 'bip39'
 // import * as ecc from 'tiny-secp256k1'
 import { taprootFinalInput, taprootSignInput } from '../../../utils/btc-inscribe/btcUtils.js'
-import { CreateOptions, MetaidData } from '@/types/index.js'
+import { SubMetaidData, MetaidData } from '@/types/index.js'
 
 // const bip32 = BIP32Factory(ecc)
 
@@ -63,9 +63,30 @@ export class BtcEntity {
     return await getPinDetailByPid({ pid, network: network ?? this.connector.network })
   }
 
-  public async list({ page, limit, network }: { page: number; limit: number; network?: BtcNetwork }): Promise<Pin[]> {
+  //cursor  == (page - 1) * size
+  public async list({
+    page,
+    limit,
+    network,
+    address,
+  }: {
+    page: number
+    limit: number
+    network?: BtcNetwork
+    address?: string
+  }): Promise<Pin[]> {
     // const pins = await getPinListByAddress({ address: 'tb1qlwvue3swm044hqf7s3ww8um2tuh0ncx65a6yme' })
     const path = this.schema.path
+    if (!isNil(address)) {
+      const pins = await getPinListByAddress({
+        address: address,
+        cursor: ((Number(page) - 1) * Number(limit)).toString(),
+        size: limit.toString(),
+        network: network ?? 'testnet',
+      })
+      return pins.list.filter((d) => d.path.includes(this.schema.path))
+    }
+
     const pins = await getAllPinByPath({ path, page, limit, network: network ?? this.connector.network })
     return pins.currentPage.filter((d) => d.path.includes(this.schema.path))
   }
@@ -92,20 +113,20 @@ export class BtcEntity {
   ///////////////////////////////////////// to be deleted method ///////////////////////////////////
 
   @connected
-  public async create<T extends keyof NBD>({
+  public async create<T extends keyof InscribeResultForIfBroadcasting>({
     options,
     noBroadcast,
     feeRate,
     service,
   }: {
-    options: CreateOptions[]
+    options: SubMetaidData[]
     noBroadcast: T
     feeRate?: number
     service?: {
       address: string
       satoshis: string
     }
-  }): Promise<NBD[T]> {
+  }): Promise<InscribeResultForIfBroadcasting[T]> {
     const path = this.schema.path
     // console.log('pin path', path)
     const res = await this.connector.inscribe(

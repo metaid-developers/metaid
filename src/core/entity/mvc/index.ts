@@ -15,11 +15,11 @@ import { connected } from '@/decorators/connected.js'
 import { buildRootOpreturn, buildOpreturn, buildUserOpreturn } from '@/utils/opreturn-builder.js'
 import { errors } from '@/data/errors.js'
 import { UTXO_DUST } from '@/data/constants.js'
-import { checkBalance, sleep } from '@/utils/index.js'
 import { type Transaction } from '@/wallets/metalet/mvcWallet.js'
 import type { EntitySchema } from '@/metaid-entities/entity.js'
 import type { MvcConnector } from '../../connector/mvc.js'
-import { CreateOptions } from '@/types/index.js'
+import { SubMetaidData } from '@/types/index.js'
+import { BtcNetwork } from '@/service/btc.js'
 
 type Root = {
   id: string
@@ -67,10 +67,10 @@ export class MvcEntity {
   }
 
   @connected
-  public async create({ options }: { options: CreateOptions }) {
+  public async create({ data, options }: { data: SubMetaidData; options: { network: BtcNetwork } }) {
     const path = this.schema.path
     // console.log('pin path', path)
-    const res = await this.connector.createPin({ ...options, operation: 'create', path, revealAddr: this.address })
+    const res = await this.connector.createPin({ ...data, operation: 'create', path }, { network: options.network })
     console.log('res', res)
     return res
   }

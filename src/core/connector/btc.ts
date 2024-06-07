@@ -15,10 +15,27 @@ import { InscriptionRequest, MetaidData, UserInfo } from '@/types'
 import { BtcNetwork } from '@/service/btc.js'
 import { sha256 } from 'bitcoinjs-lib/src/crypto'
 
-export interface NBD {
-  no: { commitTxId: string; revealTxIds: string[]; commitCost: string; revealCost: string; status?: string }
-  yes: { commitTxHex: string; revealTxsHex: string[]; commitCost: string; revealCost: string; status?: string }
+export interface InscribeResultForYesBroadcast {
+  commitTxId: string
+  revealTxIds: string[]
+  commitCost: string
+  revealCost: string
+  status?: string
 }
+export interface InscribeResultForNoBroadcast {
+  commitTxHex: string
+  revealTxsHex: string[]
+  commitCost: string
+  revealCost: string
+  status?: string
+}
+
+export interface InscribeResultForIfBroadcasting {
+  no: InscribeResultForYesBroadcast
+  yes: InscribeResultForNoBroadcast
+}
+
+//todo: add getXpub and connecotor restore methods
 
 @staticImplements<BtcConnectorStatic>()
 export class BtcConnector implements IBtcConnector {
@@ -46,17 +63,9 @@ export class BtcConnector implements IBtcConnector {
     const connector = new BtcConnector(wallet)
 
     if (wallet) {
-      // ask api for metaid and user
-      // const rootPin = await getRootPinByAddress({ address: wallet.address })
-      // const metaid = rootPin?.rootTxId
-      // if (!!metaid) {
-      //   connector.metaid = metaid
-
-      //   const user = await getInfoByAddress({ address: wallet.address })
-      //   connector.user = user
-      // }
       connector.metaid = sha256(Buffer.from(wallet.address)).toString('hex')
 
+      // ask api for  user
       const metaidInfo = await getInfoByAddress({ address: wallet.address, network: network ?? wallet.network })
       if (!isNil(metaidInfo)) {
         // connector.metaid = metaidInfo.rootTxId + 'i0'
@@ -80,7 +89,7 @@ export class BtcConnector implements IBtcConnector {
     }
   }
 
-  public async inscribe<T extends keyof NBD>(
+  public async inscribe<T extends keyof InscribeResultForIfBroadcasting>(
     inscribeOptions: InscribeOptions[],
     noBroadcast: T,
     feeRate?: number,
@@ -88,7 +97,7 @@ export class BtcConnector implements IBtcConnector {
       address: string
       satoshis: string
     }
-  ): Promise<NBD[T]> {
+  ): Promise<InscribeResultForIfBroadcasting[T]> {
     // const faucetUtxos = await fetchUtxos({
     //   address: address,
     //   network: 'testnet',
@@ -131,7 +140,7 @@ export class BtcConnector implements IBtcConnector {
       changeAddress: this.address,
       service,
     }
-    console.log('request', request, 'noBroadcast', noBroadcast === 'no' ? false : true)
+    console.log('request', request)
     const res = await this.wallet.inscribe({
       data: request,
       options: {
@@ -152,13 +161,17 @@ export class BtcConnector implements IBtcConnector {
       address: string
       satoshis: string
     }
-  }): Promise<boolean> {
-    let nameRevealId = ''
-    let bioRevealId = ''
-    let avatarRevealId = ''
+  }): Promise<{
+    nameRes: InscribeResultForYesBroadcast | undefined
+    bioRes: InscribeResultForYesBroadcast | undefined
+    avatarRes: InscribeResultForYesBroadcast | undefined
+  }> {
+    let nameRes: InscribeResultForYesBroadcast | undefined
+    let bioRes: InscribeResultForYesBroadcast | undefined
+    let avatarRes: InscribeResultForYesBroadcast | undefined
+
     // path 传@pinId
     if (body?.name !== this.user?.name && !isNil(body?.name) && !isEmpty(body?.name)) {
-      let nameRes
       if (this.user?.nameId === '') {
         nameRes = await this.inscribe(
           [
@@ -188,13 +201,10 @@ export class BtcConnector implements IBtcConnector {
           body?.service
         )
       }
-      if (!isNil(nameRes?.revealTxIds[0])) {
-        nameRevealId = nameRes.revealTxIds[0]
-      }
     }
     if (body?.bio !== this.user?.bio && !isNil(body?.bio) && !isEmpty(body?.bio)) {
       console.log('run in bio')
-      let bioRes
+
       if (this.user?.bioId === '') {
         bioRes = await this.inscribe(
           [
@@ -224,12 +234,8 @@ export class BtcConnector implements IBtcConnector {
           body?.service
         )
       }
-      if (!isNil(bioRes?.revealTxIds[0])) {
-        bioRevealId = bioRes.revealTxIds[0]
-      }
     }
     if (body?.avatar !== this.user?.avatar && !isNil(body?.avatar) && !isEmpty(body?.avatar)) {
-      let avatarRes
       if (this.user?.avatarId === '') {
         avatarRes = await this.inscribe(
           [
@@ -263,16 +269,9 @@ export class BtcConnector implements IBtcConnector {
           body?.service
         )
       }
-      if (!isNil(avatarRes?.revealTxIds[0])) {
-        avatarRevealId = avatarRes.revealTxIds[0]
-      }
     }
 
-    if (nameRevealId !== '' || bioRevealId !== '' || avatarRevealId !== '') {
-      return true
-    } else {
-      return false
-    }
+    return { nameRes, bioRes, avatarRes }
   }
 
   async createUserInfo(body: {
@@ -285,9 +284,13 @@ export class BtcConnector implements IBtcConnector {
       address: string
       satoshis: string
     }
-  }): Promise<boolean> {
-    let cost = 0
-
+  }): Promise<{
+    nameRes: InscribeResultForYesBroadcast
+    bioRes: InscribeResultForYesBroadcast | undefined
+    avatarRes: InscribeResultForYesBroadcast | undefined
+  }> {
+    let bioRes: InscribeResultForYesBroadcast | undefined
+    let avatarRes: InscribeResultForYesBroadcast | undefined
     const nameRes = await this.inscribe(
       [
         {
@@ -302,10 +305,9 @@ export class BtcConnector implements IBtcConnector {
       body?.feeRate ?? 1,
       body?.service
     )
-    cost += Number(nameRes?.revealCost ?? 0) + Number(nameRes?.commitCost ?? 0)
     console.log('inscribe nameRes', nameRes)
     if (!!body?.bio) {
-      const bioRes = await this.inscribe(
+      bioRes = await this.inscribe(
         [
           {
             operation: 'create',
@@ -319,10 +321,9 @@ export class BtcConnector implements IBtcConnector {
         body?.feeRate ?? 1,
         body?.service
       )
-      cost += Number(bioRes?.revealCost ?? 0) + Number(bioRes?.commitCost ?? 0)
     }
     if (!!body?.avatar) {
-      const avatarRes = await this.inscribe(
+      avatarRes = await this.inscribe(
         [
           {
             operation: 'create',
@@ -338,11 +339,10 @@ export class BtcConnector implements IBtcConnector {
         body?.feeRate ?? 1,
         body?.service
       )
-      cost += Number(avatarRes?.revealCost ?? 0) + Number(avatarRes?.commitCost ?? 0)
       console.log('inscribe avatarRes', avatarRes)
     }
 
-    return !isNil(nameRes?.revealTxIds) && !isEmpty(nameRes?.revealTxIds)
+    return { nameRes, bioRes, avatarRes }
   }
 
   // metaid

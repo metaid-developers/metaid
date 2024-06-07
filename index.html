@@ -48,9 +48,7 @@
             <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="createMetaidForBTC">
               BTC Create MetaID
             </button>
-            <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="createMetaidForMVC">
-              MVC Create MetaID
-            </button>
+            <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="createUserForMVC">MVC Create User</button>
             <button class="px-4 py-2 bg-white rounded-md shadow-md" @click="debug">Debug</button>
           </div>
 
@@ -96,6 +94,7 @@
       import {
         Transaction,
         Psbt,
+        // LocalWallet,
         MetaletWalletForMvc,
         MetaletWalletForBtc,
         btcConnect,
@@ -109,7 +108,7 @@
           const Buzz = ref(null)
           const File = ref(null)
           const connected = computed(() => !!Buzz.value)
-          const content = ref('Dont beee a pussssy!!!!')
+          const content = ref('Hello MetaID V2 !!!')
           const buzzes = ref([])
           const connector = ref(null)
           const wallet = ref(null)
@@ -130,6 +129,7 @@
 
             const btcConnector = await btcConnect({ wallet: _wallet, network: 'testnet' })
             console.log('your metaid', btcConnector.metaid)
+            console.log('your btc connector address', btcConnector.address)
             // if (!btcConnector.hasMetaid) {
             //   const metaid = await btcConnector.createMetaid()
             // }
@@ -139,8 +139,8 @@
             //   user: btcConnector?.user,
             // })
 
-            // const buzzEntity = await btcConnector.use('buzz')
-            // Buzz.value = buzzEntity
+            const buzzEntity = await btcConnector.use('buzz')
+            Buzz.value = buzzEntity
             // const avatarBody =
             //   'iVBORw0KGgoAAAANSUhEUgAAAEMAAABKCAYAAADgxem7AAAAAXNSR0IArs4c6QAABjBJREFUeF7tnFtsFFUYx39nZra7Ld3tYqFQqoZGjRRifNAYn0jkoiCIQFsxERSECGJiolHjGxhQY0w0Eh9QjB'
             // const avatarRes = await btcConnector.inscribe(
@@ -156,11 +156,7 @@
             const _wallet = await MetaletWalletForMvc.create()
             wallet.value = _wallet
 
-            btcAddress.value = await _wallet.getAddress({})
-            console.log(`Your mvc address is ${btcAddress.value}`)
-
-            const mvcConnector = await mvcConnect('mvc')
-            console.log('baseEntity', baseEntity, mvcConnector.address)
+            const mvcConnector = await mvcConnect({ wallet: _wallet, network: 'testnet' })
 
             const handler = await mvcConnector.use('buzz')
             Buzz.value = handler
@@ -194,7 +190,14 @@
 
           const createBuzzForMVC = async () => {
             console.log('I wanna publish a buzz:', content.value)
-            await toRaw(Buzz.value).create({ body: content.value })
+            const res = await toRaw(Buzz.value).list({
+              page: 1,
+              limit: 5,
+              address: 'mnQFdT8SC7mmvV96wvuUQ3QPt2W9gvUT64',
+            })
+            console.log({ res })
+
+            // await toRaw(Buzz.value).create({ data: { body: content.value }, options: { network: 'testnet' } })
           }
           const createBuzzPictureForMVC = async () => {
             let attachMetafileUri = []
@@ -209,7 +212,7 @@
 
           const getBuzzList = async () => {
             console.log(toRaw(Buzz.value))
-            const res = await toRaw(Buzz.value).getPins({ page: 1, limit: 5 })
+            const res = await toRaw(Buzz.value).list({ page: 1, limit: 5, network: 'testnet' })
             console.log('buzz res', res)
             buzzes.value = res
           }
@@ -259,12 +262,14 @@
             const res = await connector.createMetaid({ name: 'ttb' }).catch((error) => console.log('error html', error))
             console.log(res)
           }
-          const createMetaidForMVC = async () => {
+          const createUserForMVC = async () => {
             const _wallet = await MetaletWalletForMvc.create()
-            const connector = await mvcConnect(_wallet)
+            const mvcConnector = await mvcConnect({ wallet: _wallet, network: 'testnet' })
             console.log({ connector })
-            const res = await connector.createMetaid().catch((error) => console.log('error html', error))
-            console.log('create metaid res', res)
+            const res = await mvcConnector
+              .createUserInfo({ name: 'zico' })
+              .catch((error) => console.log('error mvc create user', error))
+            console.log('create mvc metaid-user res', res)
           }
 
           return {
@@ -285,7 +290,7 @@
             getPublicKey,
             send2k,
             createMetaidForBTC,
-            createMetaidForMVC,
+            createUserForMVC,
             likeTheFirst,
             btcAddress,
             debug,

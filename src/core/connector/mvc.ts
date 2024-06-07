@@ -9,10 +9,22 @@ import { loadBtc, loadMvc } from '@/factories/load.js'
 import { errors } from '@/data/errors.js'
 import type { Blockchain, MetaidData, UserInfo } from '@/types/index.js'
 import { IMvcConnector, MvcConnectorStatic } from './mvcConnector'
-import { getInfoByAddress } from '@/service/btc'
+import { BtcNetwork, getInfoByAddress } from '@/service/btc'
 import { isNil, isEmpty } from 'ramda'
 import { InscribeOptions } from '../entity/btc'
 import { buildOpReturnV2 } from '@/utils/opreturn-builder'
+import { sha256 } from 'bitcoinjs-lib/src/crypto'
+
+export type CreatePinResult =
+  | {
+      transactions: Transaction[]
+      txid?: undefined
+    }
+  | {
+      txid: string
+      transactions?: undefined
+    }
+
 @staticImplements<MvcConnectorStatic>()
 export class MvcConnector implements IMvcConnector {
   private _isConnected: boolean
@@ -35,16 +47,17 @@ export class MvcConnector implements IMvcConnector {
     return this.wallet?.xpub || ''
   }
 
-  public static async create(wallet?: MetaIDWalletForMvc) {
+  public static async create({ wallet, network }: { wallet?: MetaIDWalletForMvc; network: BtcNetwork }) {
     const connector = new MvcConnector(wallet)
 
     if (wallet) {
-      // // ask api for metaid (to do : switch api to mvc)
-      // const metaidInfo = await getInfoByAddress({ address: wallet.address })
-      // if (!isNil(metaidInfo.rootTxId)) {
-      //   connector.metaid = metaidInfo.rootTxId + 'i0'
-      //   connector.user = metaidInfo
-      // }
+      connector.metaid = sha256(Buffer.from(wallet.address)).toString('hex')
+
+      // ask api for user (to do : switch api to mvc)
+      const metaidInfo = await getInfoByAddress({ address: wallet.address, network: network ?? wallet.network })
+      if (!isNil(metaidInfo)) {
+        connector.user = metaidInfo
+      }
     }
 
     return connector
@@ -59,22 +72,23 @@ export class MvcConnector implements IMvcConnector {
   //   return this.hasUser() && !!this.user.metaid && !!this.user.protocolTxid && !!this.user.infoTxid && !!this.user.name
   // }
 
-  async getUser(currentAddress?: string) {
+  async getUser({ network, currentAddress }: { network: BtcNetwork; currentAddress?: string }) {
     if (!!currentAddress) {
-      return await getInfoByAddress({ address: currentAddress, network: 'testnet' })
+      return await getInfoByAddress({ address: currentAddress, network })
     } else {
-      return await getInfoByAddress({ address: this.address, network: 'testnet' })
+      return await getInfoByAddress({ address: this.address, network })
     }
   }
 
-  async updateUserInfo(body?: { name?: string; bio?: string; avatar?: string; feeRate?: number }): Promise<boolean> {
-    return true
-  }
-
   async createPin(
-    metaidData: MetaidData,
-    options?: { signMessage: string; serialAction?: 'combo' | 'finish'; transactions?: Transaction[] }
-  ) {
+    metaidData: Omit<MetaidData, 'revealAddr'>,
+    options: {
+      signMessage?: string
+      serialAction?: 'combo' | 'finish'
+      transactions?: Transaction[]
+      network: BtcNetwork
+    }
+  ): Promise<CreatePinResult> {
     console.log('metaidData', metaidData)
 
     if (!this.isConnected) {
@@ -82,7 +96,7 @@ export class MvcConnector implements IMvcConnector {
     }
     const transactions: Transaction[] = options?.transactions ?? []
 
-    // if (!(await checkBalance(this.wallet.address))) {
+    // if (!(await checkBalance({ address: this.wallet.address, network: options?.network ?? 'testnet' }))) {
     //   throw new Error(errors.NOT_ENOUGH_BALANCE)
     // }
 
@@ -90,7 +104,7 @@ export class MvcConnector implements IMvcConnector {
 
     console.log('wallet address', this.wallet.address)
     pinTxComposer.appendP2PKHOutput({
-      address: new mvc.Address(this.wallet.address, 'testnet' as any),
+      address: new mvc.Address(this.wallet.address, options.network),
       satoshis: 546,
     })
 
@@ -102,6 +116,7 @@ export class MvcConnector implements IMvcConnector {
       txComposer: pinTxComposer,
       message: 'Create Pin',
     })
+
     if (options?.serialAction === 'combo') {
       return { transactions }
     }
@@ -113,151 +128,173 @@ export class MvcConnector implements IMvcConnector {
     // for (const txComposer of payRes) {
     //   await this.connector.broadcast(txComposer)
     // }
-    await this.batchBroadcast(payRes)
+    await this.batchBroadcast({ txComposer: payRes, network: options.network })
 
     for (const p of payRes) {
       const txid = p.getTxId()
-      const isValid = !!(await fetchTxid(txid))
+      console.log('mvc pin txid: ' + txid)
+      const isValid = !!(await fetchTxid({ txid, network: options.network }))
       if (isValid) {
         await notify({ txHex: p.getRawHex() })
       } else {
         throw new Error('txid is not valid')
       }
     }
+
     return {
       txid: payRes[payRes.length - 1].getTxId(),
     }
   }
 
-  async createMetaid(body?: { name?: string; avatar?: string }): Promise<{ metaid: string }> {
-    const res = await this.createPin({
-      operation: 'init',
-      body: JSON.stringify(body),
-      revealAddr: this.wallet.address,
-    })
-    return { metaid: res?.txid + 'i0' }
-    // let user: any = {}
-    // if (this.metaid) {
-    //   user = await fetchUser(this.metaid)
-    //   if (user && user.metaid && user.protocolTxid && (user.infoTxid && user).name) {
-    //     this.user = user
+  async updateUserInfo(body?: {
+    name?: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+  }): Promise<{
+    nameRes: CreatePinResult | undefined
+    bioRes: CreatePinResult | undefined
+    avatarRes: CreatePinResult | undefined
+  }> {
+    let nameRes: CreatePinResult | undefined
+    let bioRes: CreatePinResult | undefined
+    let avatarRes: CreatePinResult | undefined
 
-    //     return
-    //   }
-    // }
+    // {
+    //   operation: 'create',
+    //   body: body.name,
+    //   path: '/info/name',
+    //   flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+    // },
+    // { network: body?.network ?? 'testnet' }
 
-    // // check if has enough balance
-    // const biggestUtxoAmount = await fetchUtxos({ address: this.address }).then((utxos) => {
-    //   return utxos.length
-    //     ? utxos.reduce((prev, curr) => {
-    //         return prev.value > curr.value ? prev : curr
-    //       }, utxos[0]).value
-    //     : 0
-    // })
+    // path 传@pinId
+    if (body?.name !== this.user?.name && !isNil(body?.name) && !isEmpty(body?.name)) {
+      if (this.user?.nameId === '') {
+        nameRes = await this.createPin(
+          {
+            operation: 'create',
+            body: body?.name,
+            path: `/info/name`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      } else {
+        nameRes = await this.createPin(
+          {
+            operation: 'modify',
+            body: body?.name,
+            path: `@${this?.user?.nameId ?? ''}`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
 
-    // if (biggestUtxoAmount < LEAST_AMOUNT_TO_CREATE_METAID) {
-    //   throw new Error(errors.NOT_ENOUGH_BALANCE_TO_CREATE_METAID)
-    // }
+          { network: body?.network ?? 'testnet' }
+        )
+      }
+    }
+    if (body?.bio !== this.user?.bio && !isNil(body?.bio) && !isEmpty(body?.bio)) {
+      console.log('run in bio')
 
-    // if (!this.isMetaidValid()) {
-    //   let allTransactions: Transaction[] = []
-    //   let tempUser = {
-    //     metaid: '',
-    //     protocolTxid: '',
-    //     infoTxid: '',
-    //     name: '',
-    //   }
-    //   if (!user?.metaid) {
-    //     // console.log('run in userMetaid')
-    //     const Metaid = await this.use('metaid-root')
-    //     const publicKey = await this.getPublicKey('/0/0')
-    //     const tx1 = await Metaid.createMetaidRoot(
-    //       {
-    //         publicKey,
-    //       },
-    //       Metaid.schema.nodeName
-    //     )
-    //     allTransactions = allTransactions.concat(tx1)
+      if (this.user?.bioId === '') {
+        bioRes = await this.createPin(
+          {
+            operation: 'create',
+            body: body?.bio,
+            path: `/info/bio`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
 
-    //     // this.metaid = tx1[tx1.length - 1].txComposer.getTxId()
-    //     tempUser.metaid = tx1[tx1.length - 1].txComposer.getTxId()
-    //   }
-    //   await sleep(1000)
-    //   if (!user?.protocolTxid) {
-    //     const Protocols = await this.use('metaid-protocol')
-    //     const publicKey = await this.getPublicKey('/0/2')
-    //     const tx2 = await Protocols.createMetaidRoot(
-    //       {
-    //         publicKey,
-    //         txid: tempUser.metaid,
-    //       },
-    //       Protocols.schema.nodeName
-    //     )
-    //     allTransactions = allTransactions.concat(tx2)
-    //     tempUser.protocolTxid = tx2[tx2.length - 1].txComposer.getTxId()
-    //   }
-    //   if (!user?.infoTxid) {
-    //     const Info = await this.use('metaid-info')
-    //     const publicKey = await this.getPublicKey('/0/1')
-    //     const tx3 = await Info.createMetaidRoot(
-    //       {
-    //         publicKey,
-    //         txid: tempUser.metaid,
-    //       },
-    //       Info.schema.nodeName
-    //     )
-    //     allTransactions = allTransactions.concat(tx3)
-    //     tempUser.infoTxid = tx3[tx3.length - 1].txComposer.getTxId()
-    //   }
-    //   if (!user?.name) {
-    //     const Name = await this.use('metaid-name')
-    //     const address = await this.getAddress('/0/1')
-    //     const publicKey = await this.getPublicKey('/0/1')
-    //     const useName = body?.name ? body.name : DEFAULT_USERNAME
-    //     const tx4 = await Name.createMetaidRoot(
-    //       {
-    //         address,
-    //         publicKey,
-    //         txid: tempUser.infoTxid,
-    //         body: useName,
-    //       },
-    //       Name.schema.nodeName
-    //     )
+          { network: body?.network ?? 'testnet' }
+        )
+      } else {
+        bioRes = await this.createPin(
+          {
+            operation: 'modify',
+            body: body?.bio,
+            path: `@${this?.user?.bioId ?? ''}`,
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      }
+    }
+    if (body?.avatar !== this.user?.avatar && !isNil(body?.avatar) && !isEmpty(body?.avatar)) {
+      if (this.user?.avatarId === '') {
+        avatarRes = await this.createPin(
+          {
+            operation: 'create',
+            body: body?.avatar,
+            path: `/info/avatar`,
+            encoding: 'base64',
+            contentType: 'image/jpeg;binary',
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      } else {
+        avatarRes = await this.createPin(
+          {
+            operation: 'modify',
+            body: body?.avatar,
+            path: `@${this?.user?.avatarId ?? ''}`,
+            encoding: 'base64',
+            contentType: 'image/jpeg;binary',
+            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          },
+          { network: body?.network ?? 'testnet' }
+        )
+      }
+    }
 
-    //     allTransactions = allTransactions.concat(tx4)
-    //     tempUser.name = useName
-    //   }
-    //   // this.user = user
-    //   const payRes = await this.wallet.pay({
-    //     transactions: allTransactions,
-    //   })
-
-    //   await this.wallet.batchBroadcast(payRes)
-
-    //   sleep(1000)
-    //   for (const p of payRes) {
-    //     const txid = p.getTxId()
-    //     const isValid = !!(await fetchTxid(txid))
-    //     // console.log('bbbbb', isValid, await fetchTxid(txid))
-    //     if (isValid) {
-    //       await notify({ txHex: p.getRawHex() })
-    //     } else {
-    //       throw new Error('txid is not valid')
-    //     }
-    //   }
-
-    //   if (user?.metaId) {
-    //     this.metaid = user.metaid
-    //   } else {
-    //     this.metaid = payRes[0].getTxId()
-    //   }
-    // }
-    // await sleep(1000)
-    // const refetchUser = await fetchUser(this.metaid)
-    // this.user = refetchUser
-    // console.log({ refetchUser })
-    // return refetchUser
-    return { metaid: 'abc' }
+    return { nameRes, bioRes, avatarRes }
+  }
+  async createUserInfo(body: {
+    name: string
+    bio?: string
+    avatar?: string
+    feeRate?: number
+    network?: BtcNetwork
+  }): Promise<{
+    nameRes: CreatePinResult
+    bioRes: CreatePinResult | undefined
+    avatarRes: CreatePinResult | undefined
+  }> {
+    let bioRes: CreatePinResult | undefined
+    let avatarRes: CreatePinResult | undefined
+    const nameRes = await this.createPin(
+      {
+        operation: 'create',
+        body: body.name,
+        path: '/info/name',
+        flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+      },
+      { network: body?.network ?? 'testnet' }
+    )
+    if (!isEmpty(body?.bio ?? '')) {
+      bioRes = await this.createPin(
+        {
+          operation: 'create',
+          body: body.name,
+          path: '/info/bio',
+          flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+        },
+        { network: body?.network ?? 'testnet' }
+      )
+    }
+    if (!isEmpty(body?.avatar ?? '')) {
+      avatarRes = await this.createPin(
+        {
+          operation: 'create',
+          body: body?.avatar,
+          path: '/info/avatar',
+          flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+        },
+        { network: body?.network ?? 'testnet' }
+      )
+    }
+    return { nameRes, bioRes, avatarRes }
   }
 
   // metaid
@@ -302,12 +339,12 @@ export class MvcConnector implements IMvcConnector {
     return this.wallet.send(toAddress, amount)
   }
 
-  broadcast(txComposer: TxComposer) {
-    return this.wallet.broadcast(txComposer)
+  broadcast({ txComposer, network }: { txComposer: TxComposer; network: BtcNetwork }) {
+    return this.wallet.broadcast({ txComposer, network })
   }
 
-  batchBroadcast(txComposer: TxComposer[]) {
-    return this.wallet.batchBroadcast(txComposer)
+  batchBroadcast({ txComposer, network }: { txComposer: TxComposer[]; network: BtcNetwork }) {
+    return this.wallet.batchBroadcast({ txComposer, network })
   }
 
   getPublicKey(path?: string) {

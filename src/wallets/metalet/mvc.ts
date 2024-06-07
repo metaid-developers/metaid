@@ -5,11 +5,13 @@ import { errors } from '@/data/errors.js'
 import { broadcast as broadcastToApi, batchBroadcast as batchBroadcastApi } from '@/service/mvc.js'
 import { DERIVE_MAX_DEPTH } from '@/data/constants.js'
 import { isNil } from 'ramda'
+import { BtcNetwork } from '@/service/btc.js'
 
 @staticImplements<WalletStatic>()
 export class MetaletWalletForMvc implements MetaIDWalletForMvc {
   public address: string
   public xpub: string
+  public network: BtcNetwork
 
   private internal: any
   private constructor() {}
@@ -187,17 +189,29 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
     }
   }
 
-  public async broadcast(txComposer: TxComposer): Promise<{ txid: string }> {
+  public async broadcast({
+    txComposer,
+    network,
+  }: {
+    txComposer: TxComposer
+    network: BtcNetwork
+  }): Promise<{ txid: string }> {
     // broadcast locally first
     const txHex = txComposer.getTx().toString()
-    return await broadcastToApi({ txHex })
+    return await broadcastToApi({ txHex, network })
   }
 
-  public async batchBroadcast(txComposer: TxComposer[]): Promise<{ txid: string }[]> {
+  public async batchBroadcast({
+    txComposer,
+    network,
+  }: {
+    txComposer: TxComposer[]
+    network: BtcNetwork
+  }): Promise<{ txid: string }[]> {
     // broadcast locally first
     const hexs = txComposer.map((d) => {
       return { hex: d.getTx().toString() }
     })
-    return await batchBroadcastApi(hexs)
+    return await batchBroadcastApi({ params: hexs, network })
   }
 }

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { BtcNetwork } from './btc'
 
 export type User = {
   metaid: string
@@ -205,7 +206,7 @@ export async function notify({ txHex }: { txHex: string }) {
   })
 }
 
-export async function fetchUtxos({ address }: { address: string }): Promise<
+export async function fetchUtxos({ address, network }: { address: string; network: BtcNetwork }): Promise<
   {
     txid: string
     outIndex: number
@@ -214,7 +215,7 @@ export async function fetchUtxos({ address }: { address: string }): Promise<
     height: number
   }[]
 > {
-  const url = `https://mainnet.mvcapi.com/address/${address}/utxo`
+  const url = `https://${network}.mvcapi.com/address/${address}/utxo`
 
   try {
     const data = await axios.get(url).then((res) => res.data)
@@ -225,13 +226,13 @@ export async function fetchUtxos({ address }: { address: string }): Promise<
   }
 }
 
-export async function fetchBiggestUtxo({ address }: { address: string }): Promise<{
+export async function fetchBiggestUtxo({ address, network }: { address: string; network: BtcNetwork }): Promise<{
   txid: string
   outIndex: number
   address: string
   value: number
 }> {
-  return await fetchUtxos({ address }).then((utxos) => {
+  return await fetchUtxos({ address, network }).then((utxos) => {
     if (utxos.length === 0) {
       console.log({ address })
       throw new Error('No UTXO')
@@ -242,8 +243,8 @@ export async function fetchBiggestUtxo({ address }: { address: string }): Promis
   })
 }
 
-export async function fetchTxid(txid: string) {
-  const url = `https://mainnet.mvcapi.com/tx/${txid}`
+export async function fetchTxid({ txid, network }: { txid: string; network: BtcNetwork }) {
+  const url = `https://${network}.mvcapi.com/tx/${txid}`
   return await axios.get(url).then((res) => {
     return res.data
   })
@@ -308,20 +309,19 @@ export async function fetchRootCandidate(params: { xpub: string; parentTxId: str
   })
 }
 
-export async function broadcast({ txHex }: { txHex: string }): Promise<{
+export async function broadcast({ txHex, network }: { txHex: string; network: BtcNetwork }): Promise<{
   txid: string
 }> {
   return await axios
-    .post('https://mainnet.mvcapi.com/tx/broadcast', {
+    .post(`https://${network}.mvcapi.com/tx/broadcast`, {
       hex: txHex,
     })
     .then((res) => res.data)
 }
-
-export async function batchBroadcast(params: { hex: string }[]): Promise<
+export async function batchBroadcast({ params, network }: { params: { hex: string }[]; network: BtcNetwork }): Promise<
   {
     txid: string
   }[]
 > {
-  return await axios.post('https://mainnet.mvcapi.com/tx/broadcast/batch', params).then((res) => res.data)
+  return await axios.post(`https://${network}.mvcapi.com/tx/broadcast/batch`, params).then((res) => res.data)
 }

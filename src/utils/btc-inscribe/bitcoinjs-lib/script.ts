@@ -68,7 +68,7 @@ export function compile(chunks: Buffer | Stack): Buffer {
     return accum + 1
   }, 0.0)
 
-  const buffer = Buffer.allocUnsafe(bufferSize)
+  const buffer = Buffer.allocUnsafe(bufferSize as any)
   let offset = 0
 
   chunks.forEach((chunk) => {
@@ -77,7 +77,7 @@ export function compile(chunks: Buffer | Stack): Buffer {
       // adhere to BIP62.3, minimal push policy
       const opcode = asMinimalOP(chunk)
       if (opcode !== undefined) {
-        buffer.writeUInt8(opcode, offset)
+        buffer.writeUInt8(opcode as any, offset)
         offset += 1
         return
       }
@@ -126,7 +126,7 @@ export function decompile(buffer: Buffer | Array<number | Buffer>): Array<number
       // decompile minimally
       const op = asMinimalOP(data)
       if (op !== undefined) {
-        chunks.push(op)
+        chunks.push(op as any)
       } else {
         chunks.push(data)
       }

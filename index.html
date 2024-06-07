@@ -96,7 +96,6 @@
       import {
         Transaction,
         Psbt,
-        LocalWallet,
         MetaletWalletForMvc,
         MetaletWalletForBtc,
         btcConnect,
@@ -160,10 +159,10 @@
             btcAddress.value = await _wallet.getAddress({})
             console.log(`Your mvc address is ${btcAddress.value}`)
 
-            const baseEntity = await mvcConnect('mvc')
-            console.log('baseEntity', baseEntity)
+            const mvcConnector = await mvcConnect('mvc')
+            console.log('baseEntity', baseEntity, mvcConnector.address)
 
-            const handler = await baseEntity.use('buzz')
+            const handler = await mvcConnector.use('buzz')
             Buzz.value = handler
           }
 

@@ -187,7 +187,7 @@ const { txid } = await buzzEntity.create({
 })
 ```
 
-### Example B -Give a like to a buzz
+### Example B -Give a like to a buzz(BTC version)
 
 #### Step 1 - We need a new Like entity, base on its metaprocol definition, we have the following like entity schema definition
 
@@ -219,17 +219,19 @@ const likeSchema = {
 const likeEntity = await btcConnector.use('like')
 
 const likeRes = await likeEntity.create({
-  options: [
+  dataArray: [
     {
       body: JSON.stringify({ isLike: '1', likeTo: pinId }),
     },
   ],
-  noBroadcast: 'no',
-  feeRate: Number(globalFeeRate),
+  options: {
+    noBroadcast: 'no',
+    feeRate: Number(globalFeeRate),
+  },
 })
 ```
 
-### Example C - Load User-defined Schema
+### Example C - Load User-defined Schema(mvc version for example)
 
 #### Step 1 - You need to create a new file named **follow.entity.ts**, and place the following code in this file
 
@@ -253,7 +255,7 @@ const followSchema:EntitySchema = {
 }
 ```
 
-#### Step3 - Based on a logged-in MvcConnector, you can follow any metaid-user by calling this followEntity.create method.The corresponding code is quite simple
+#### Step2 - Based on a logged-in MvcConnector, you can follow any metaid-user by calling this followEntity.create method.The corresponding code is quite simple
 
 ```js
 import { loadMvc } from '@metaid/metaid' // loadBtc form btc chain

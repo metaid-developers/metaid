@@ -22,7 +22,7 @@ import { SubMetaidData, MetaidData } from '@/types/index.js'
 
 // const bip32 = BIP32Factory(ecc)
 
-export type InscribeOptions = Omit<MetaidData, 'revealAddr'>
+export type InscribeData = Omit<MetaidData, 'revealAddr'>
 
 export class BtcEntity {
   public connector: BtcConnector
@@ -114,27 +114,25 @@ export class BtcEntity {
 
   @connected
   public async create<T extends keyof InscribeResultForIfBroadcasting>({
+    data,
     options,
-    noBroadcast,
-    feeRate,
-    service,
   }: {
-    options: SubMetaidData[]
-    noBroadcast: T
-    feeRate?: number
-    service?: {
-      address: string
-      satoshis: string
+    data: SubMetaidData[]
+    options: {
+      noBroadcast: T
+      feeRate?: number
+      service?: {
+        address: string
+        satoshis: string
+      }
     }
   }): Promise<InscribeResultForIfBroadcasting[T]> {
     const path = this.schema.path
     // console.log('pin path', path)
-    const res = await this.connector.inscribe(
-      options.map((d) => ({ ...d, operation: 'create', path })),
-      noBroadcast,
-      feeRate,
-      service
-    )
+    const res = await this.connector.inscribe({
+      inscribeDataArray: data.map((d) => ({ ...d, operation: 'create', path })),
+      options,
+    })
 
     return res
   }
@@ -144,7 +142,7 @@ export class BtcEntity {
     operation: Operation,
     address: string,
     netWork: bitcoin.networks.Network,
-    options?: InscribeOptions | undefined
+    options?: InscribeData | undefined
   ) {
     //   const faucetUtxos = await fetchUtxos({
     //     address: address,

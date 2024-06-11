@@ -11,7 +11,7 @@ import type { Blockchain, MetaidData, UserInfo } from '@/types/index.js'
 import { IMvcConnector, MvcConnectorStatic } from './mvcConnector'
 import { BtcNetwork, getInfoByAddress } from '@/service/btc'
 import { isNil, isEmpty } from 'ramda'
-import { InscribeOptions } from '../entity/btc'
+import { InscribeData } from '../entity/btc'
 import { buildOpReturnV2 } from '@/utils/opreturn-builder'
 import { sha256 } from 'bitcoinjs-lib/src/crypto'
 
@@ -146,12 +146,16 @@ export class MvcConnector implements IMvcConnector {
     }
   }
 
-  async updateUserInfo(body?: {
-    name?: string
-    bio?: string
-    avatar?: string
-    feeRate?: number
-    network?: BtcNetwork
+  async updateUserInfo({
+    userData,
+    options,
+  }: {
+    userData?: {
+      name?: string
+      bio?: string
+      avatar?: string
+    }
+    options: { feeRate?: number; network?: BtcNetwork }
   }): Promise<{
     nameRes: CreatePinResult | undefined
     bioRes: CreatePinResult | undefined
@@ -165,97 +169,101 @@ export class MvcConnector implements IMvcConnector {
     //   operation: 'create',
     //   body: body.name,
     //   path: '/info/name',
-    //   flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+    //   flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
     // },
-    // { network: body?.network ?? 'testnet' }
+    // { network: options?.network ?? 'testnet' }
 
     // path 传@pinId
-    if (body?.name !== this.user?.name && !isNil(body?.name) && !isEmpty(body?.name)) {
+    if (userData?.name !== this.user?.name && !isNil(userData?.name) && !isEmpty(userData?.name)) {
       if (this.user?.nameId === '') {
         nameRes = await this.createPin(
           {
             operation: 'create',
-            body: body?.name,
+            body: userData?.name,
             path: `/info/name`,
-            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
           },
-          { network: body?.network ?? 'testnet' }
+          { network: options?.network ?? 'testnet' }
         )
       } else {
         nameRes = await this.createPin(
           {
             operation: 'modify',
-            body: body?.name,
+            body: userData?.name,
             path: `@${this?.user?.nameId ?? ''}`,
-            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
           },
 
-          { network: body?.network ?? 'testnet' }
+          { network: options?.network ?? 'testnet' }
         )
       }
     }
-    if (body?.bio !== this.user?.bio && !isNil(body?.bio) && !isEmpty(body?.bio)) {
+    if (userData?.bio !== this.user?.bio && !isNil(userData?.bio) && !isEmpty(userData?.bio)) {
       console.log('run in bio')
 
       if (this.user?.bioId === '') {
         bioRes = await this.createPin(
           {
             operation: 'create',
-            body: body?.bio,
+            body: userData?.bio,
             path: `/info/bio`,
-            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
           },
 
-          { network: body?.network ?? 'testnet' }
+          { network: options?.network ?? 'testnet' }
         )
       } else {
         bioRes = await this.createPin(
           {
             operation: 'modify',
-            body: body?.bio,
+            body: userData?.bio,
             path: `@${this?.user?.bioId ?? ''}`,
-            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
           },
-          { network: body?.network ?? 'testnet' }
+          { network: options?.network ?? 'testnet' }
         )
       }
     }
-    if (body?.avatar !== this.user?.avatar && !isNil(body?.avatar) && !isEmpty(body?.avatar)) {
+    if (userData?.avatar !== this.user?.avatar && !isNil(userData?.avatar) && !isEmpty(userData?.avatar)) {
       if (this.user?.avatarId === '') {
         avatarRes = await this.createPin(
           {
             operation: 'create',
-            body: body?.avatar,
+            body: userData?.avatar,
             path: `/info/avatar`,
             encoding: 'base64',
             contentType: 'image/jpeg;binary',
-            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
           },
-          { network: body?.network ?? 'testnet' }
+          { network: options?.network ?? 'testnet' }
         )
       } else {
         avatarRes = await this.createPin(
           {
             operation: 'modify',
-            body: body?.avatar,
+            body: userData?.avatar,
             path: `@${this?.user?.avatarId ?? ''}`,
             encoding: 'base64',
             contentType: 'image/jpeg;binary',
-            flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
           },
-          { network: body?.network ?? 'testnet' }
+          { network: options?.network ?? 'testnet' }
         )
       }
     }
 
     return { nameRes, bioRes, avatarRes }
   }
-  async createUserInfo(body: {
-    name: string
-    bio?: string
-    avatar?: string
-    feeRate?: number
-    network?: BtcNetwork
+  async createUserInfo({
+    userData,
+    options,
+  }: {
+    userData: {
+      name: string
+      bio?: string
+      avatar?: string
+    }
+    options: { feeRate?: number; network?: BtcNetwork }
   }): Promise<{
     nameRes: CreatePinResult
     bioRes: CreatePinResult | undefined
@@ -266,34 +274,34 @@ export class MvcConnector implements IMvcConnector {
     const nameRes = await this.createPin(
       {
         operation: 'create',
-        body: body.name,
+        body: userData.name,
         path: '/info/name',
-        flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+        flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
       },
-      { network: body?.network ?? 'testnet' }
+      { network: options?.network ?? 'testnet' }
     )
-    if (!isEmpty(body?.bio ?? '')) {
+    if (!isEmpty(userData?.bio ?? '')) {
       bioRes = await this.createPin(
         {
           operation: 'create',
-          body: body.name,
+          body: userData.name,
           path: '/info/bio',
-          flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
         },
-        { network: body?.network ?? 'testnet' }
+        { network: options?.network ?? 'testnet' }
       )
     }
-    if (!isEmpty(body?.avatar ?? '')) {
+    if (!isEmpty(userData?.avatar ?? '')) {
       avatarRes = await this.createPin(
         {
           operation: 'create',
-          body: body?.avatar,
+          body: userData?.avatar,
           path: '/info/avatar',
           encoding: 'base64',
-          flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
           contentType: 'image/jpeg;binary',
         },
-        { network: body?.network ?? 'testnet' }
+        { network: options?.network ?? 'testnet' }
       )
     }
     return { nameRes, bioRes, avatarRes }

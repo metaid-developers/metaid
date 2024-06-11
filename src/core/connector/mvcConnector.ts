@@ -25,23 +25,37 @@ export type IMvcConnector = {
       network: BtcNetwork
     }
   ): Promise<CreatePinResult>
-  createUserInfo(body: {
-    name: string
-    bio?: string
-    avatar?: string
-    feeRate?: number
-    network?: BtcNetwork
+  createUserInfo({
+    userData,
+    options,
+  }: {
+    userData: {
+      name: string
+      bio?: string
+      avatar?: string
+    }
+    options: {
+      feeRate?: number
+      network?: BtcNetwork
+    }
   }): Promise<{
     nameRes: CreatePinResult
     bioRes: CreatePinResult | undefined
     avatarRes: CreatePinResult | undefined
   }>
-  updateUserInfo(body?: {
-    name?: string
-    bio?: string
-    avatar?: string
-    feeRate?: number
-    network?: BtcNetwork
+  updateUserInfo({
+    userData,
+    options,
+  }: {
+    userData?: {
+      name?: string
+      bio?: string
+      avatar?: string
+    }
+    options: {
+      feeRate?: number
+      network?: BtcNetwork
+    }
   }): Promise<{
     nameRes: CreatePinResult | undefined
     bioRes: CreatePinResult | undefined

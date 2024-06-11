@@ -1,5 +1,5 @@
 import { InscribeResultForIfBroadcasting, InscribeResultForYesBroadcast } from './btc'
-import { BtcEntity, InscribeOptions } from '../entity/btc'
+import { BtcEntity, InscribeData } from '../entity/btc'
 import { EntitySchema } from '@/metaid-entities/entity'
 import { MetaIDWalletForBtc } from '@/wallets/metalet/btcWallet'
 import { UserInfo } from '@/types'
@@ -16,39 +16,58 @@ export type IBtcConnector = {
   user: UserInfo
   hasUser(): boolean
   getUser({ network, currentAddress }: { network: BtcNetwork; currentAddress?: string }): Promise<UserInfo>
-  inscribe<T extends keyof InscribeResultForIfBroadcasting>(
-    inscribeOptions: InscribeOptions[],
-    noBroadcast: T,
-    feeRate?: number,
-    service?: {
-      address: string
-      satoshis: string
+  inscribe<T extends keyof InscribeResultForIfBroadcasting>({
+    inscribeDataArray,
+    options,
+  }: {
+    inscribeDataArray: InscribeData[]
+    options: {
+      noBroadcast: T
+      feeRate?: number
+      service?: {
+        address: string
+        satoshis: string
+      }
     }
-  ): Promise<InscribeResultForIfBroadcasting[T]>
-  updateUserInfo(body?: {
-    name?: string
-    bio?: string
-    avatar?: string
-    feeRate?: number
-    network?: BtcNetwork
-    service?: {
-      address: string
-      satoshis: string
+  }): Promise<InscribeResultForIfBroadcasting[T]>
+  updateUserInfo({
+    userData,
+    options,
+  }: {
+    userData?: {
+      name?: string
+      bio?: string
+      avatar?: string
+    }
+    options?: {
+      network?: BtcNetwork
+      feeRate?: number
+      service?: {
+        address: string
+        satoshis: string
+      }
     }
   }): Promise<{
     nameRes: InscribeResultForYesBroadcast | undefined
     bioRes: InscribeResultForYesBroadcast | undefined
     avatarRes: InscribeResultForYesBroadcast | undefined
   }>
-  createUserInfo(body: {
-    name: string
-    bio?: string
-    avatar?: string
-    feeRate?: number
-    network?: BtcNetwork
-    service?: {
-      address: string
-      satoshis: string
+  createUserInfo({
+    userData,
+    options,
+  }: {
+    userData: {
+      name: string
+      bio?: string
+      avatar?: string
+    }
+    options: {
+      network?: BtcNetwork
+      feeRate?: number
+      service?: {
+        address: string
+        satoshis: string
+      }
     }
   }): Promise<{
     nameRes: InscribeResultForYesBroadcast

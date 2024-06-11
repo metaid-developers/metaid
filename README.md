@@ -232,7 +232,52 @@ const likeRes = await likeEntity.create({
 })
 ```
 
-# API Reference
+### Example C - Load User-defined Schema
+
+#### Step 1 - You need to create a new file named **follow.entity.ts**, and place the following code in this file
+
+```ts
+import EntitySchema from '@metaid/metaid'
+const followSchema:EntitySchema = {
+  name: 'follow',
+  nodeName: 'follow',
+  path:'/follow'
+  versions: [
+    {
+      version: 1,
+      body: [
+        {
+          name: 'followTo',
+          type: 'string',
+        },
+      ],
+    },
+  ],
+}
+```
+
+#### Step3 - Based on a logged-in MvcConnector, you can follow any metaid-user by calling this followEntity.create method.The corresponding code is quite simple
+
+```js
+import { loadMvc } from '@metaid/metaid' // loadBtc form btc chain
+import followSchema from '@/metaid-entities/follow.entity.js' // assume @/metaid-entities/follow.entity.js is the location where your place follow.entity.ts file, you need to impport .js type
+
+const followEntity = await loadMvc(followSchema, options: { connector: MvcConnector}) // You can pass MvcConnector as optional parameter
+
+const followrRes = await followEntity.create({
+  data:
+    {
+      body: "follow-to-metaid",
+      contentType: 'text/plain;utf-8',
+    },
+  options:
+    {
+      network: 'testnet'
+    }
+})
+```
+
+# API Rference
 
 ## Wallet
 
@@ -388,16 +433,30 @@ const user: UserInfo = _btcConnecto.user
 
 ```typescript
 type Operation = 'create' | 'modify' | 'revoke'
-type InscribeOptions= {
-  operation: Operation
-  body?: string | Buffer
-  path?: string
-  contentType?: string
-  encryption?: '0' | '1' | '2'
-  version?: string
-  encoding?: BufferEncoding
+type InscribeData = {
+    operation: Operation;
+    body?: string | Buffer;
+    path?: string;
+    contentType?: string;
+    encryption?: "0" | "1" | "2";
+    version?: string;
+    encoding?: BufferEncoding;
+    flag?: "metaid" | "testid";
 }
-await _btcConnector.inscribe(inscribeOptions: InscribeOptions[], noBroadcast: 'yes' | 'no')
+await _btcConnector.inscribe({
+    inscribeDataArray,
+    options,
+  }: {
+    inscribeDataArray: InscribeData[]
+    options: {
+      noBroadcast: T
+      feeRate?: number
+      service?: {
+        address: string
+        satoshis: string
+      }
+    }
+  })
 ```
 
 > The return type of this method is the same as the return type of the wallet's inscribe method.
@@ -405,8 +464,35 @@ await _btcConnector.inscribe(inscribeOptions: InscribeOptions[], noBroadcast: 'y
 ### Create userinfo, the parameter avatar is a native File type in JavaScript, which is processed in chunks as a Buffer and then converted to a base64 string
 
 ```typescript
-const isSuccess:boolean = await _btcConnector.createUserInfo(body:
-{ name?: string; network?:BtcNetwork, avatar?: string })
+export interface InscribeResultForYesBroadcast {
+  commitTxId: string
+  revealTxIds: string[]
+  commitCost: string
+  revealCost: string
+  status?: string
+}
+ createUserInfo({
+    userData,
+    options,
+  }: {
+    userData: {
+      name: string
+      bio?: string
+      avatar?: string
+    }
+    options: {
+      network?: BtcNetwork
+      feeRate?: number
+      service?: {
+        address: string
+        satoshis: string
+      }
+    }
+  }): Promise<{
+    nameRes: InscribeResultForYesBroadcast
+    bioRes:  InscribeResultForYesBroadcast | undefined
+    avatarRes: InscribeResultForYesBroadcast | undefined
+  }>
 
 ```
 
@@ -419,7 +505,35 @@ const user = await _btcConnector.getUser({ network, currentAddress }: { network:
 ### Update MetaID associated user information
 
 ```typescript
-const isUpdateSuccess =  await _btcConnector.updateUserInfo(body: { name: string; bio?: string; avatar?: string })
+export interface InscribeResultForYesBroadcast {
+  commitTxId: string
+  revealTxIds: string[]
+  commitCost: string
+  revealCost: string
+  status?: string
+}
+updateUserInfo({
+    userData,
+    options,
+  }: {
+    userData?: {
+      name?: string
+      bio?: string
+      avatar?: string
+    }
+    options?: {
+      network?: BtcNetwork
+      feeRate?: number
+      service?: {
+        address: string
+        satoshis: string
+      }
+    }
+  }): Promise<{
+    nameRes: InscribeResultForYesBroadcast | undefined
+    bioRes: InscribeResultForYesBroadcast | undefined
+    avatarRes: InscribeResultForYesBroadcast | undefined
+  }>
 ```
 
 ### Check the current connector status (whether the wallet is connected)
@@ -479,20 +593,41 @@ const pinTotal = await buzzEntity.total({ network }: { network?: BtcNetwork })
 ### Create a buzz
 
 ```typescript
-type CreateOptions = {
+
+create<T extends keyof InscribeResultForIfBroadcasting>({ data, options, }: {
+    data: SubMetaidData[];
+    options: {
+        noBroadcast: T;
+        feeRate?: number;
+        service?: {
+            address: string;
+            satoshis: string;
+        };
+    };
+}): Promise<InscribeResultForIfBroadcasting[T]>
+
+type SubMetaidData = {
     body?: string | Buffer;
     contentType?: string;
     encryption?: "0" | "1" | "2";
     version?: string;
     encoding?: BufferEncoding;
+    flag?: "metaid" | "testid";
 }
 
  const createRes = await buzzEntity.create({
+    data,
     options,
-    noBroadcast,
   }: {
-    options: CreateOptions[]
-    noBroadcast: 'yes' | 'no'
+    data: SubMetaidData[]
+    options: {
+        noBroadcast: T;
+        feeRate?: number;
+        service?: {
+            address: string;
+            satoshis: string;
+        };
+    };
   })
 ```
 

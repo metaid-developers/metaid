@@ -46,11 +46,10 @@ const buzzEntity = await _btcConnector.use('buzz')
 ```typescript
 // create
 const finalBody = { content: 'Hello World' }
-const createRes:createRes = await buzzEntity.create({
-  options: [{ body: JSON.stringify(finalBody) }],
-  noBroadcast: 'no',
-  feeRate: selectFeeRate?.number,
-})
+const createRes: createRes = await buzzEntity.create({
+      data: [{ body: JSON.stringify(finalBody) }],
+      options: { noBroadcast: 'no', feeRate: selectFeeRate?.number },
+    })
 
 // type of CreateRes
 type CreateRes: {
@@ -85,7 +84,7 @@ const fileSchema = {
 #### Step 2 - We can generate PINID based on this schema. It is worth noting that you need to transform binary image data to hex format with Buffer.from method(BTC VERSION)
 
 ```ts
-type CreateOptions = {
+type FileData = {
   body?: string | Buffer | undefined
   contentType?: string | undefined
   encryption?: '0' | '1' | '2' | undefined
@@ -94,7 +93,7 @@ type CreateOptions = {
 }
 const finalBody = { content: 'Hello World' }
 if (!isEmpty(buzz.images)) {
-  const fileOptions: CreateOptions[] = []
+  const fileOptions: FileData[] = []
 
   const fileEntity = await btcConnector!.use('file')
 
@@ -106,9 +105,8 @@ if (!isEmpty(buzz.images)) {
     })
   }
   const imageRes = await fileEntity.create({
-    options: fileOptions,
-    noBroadcast: 'no',
-    feeRate: selectFeeRate?.number,
+    dataArray: fileOptions,
+    options: { noBroadcast: 'no', feeRate: selectFeeRate?.number },
   })
 
   console.log('imageRes', imageRes)
@@ -123,9 +121,8 @@ console.log('finalBody', finalBody)
 
 ```ts
 const createRes = await buzzEntity.create({
-  options: [{ body: JSON.stringify(finalBody) }],
-  noBroadcast: 'no',
-  feeRate: selectFeeRate?.number,
+  dataArray: [{ body: JSON.stringify(finalBody) }],
+  options: { noBroadcast: 'no', feeRate: selectFeeRate?.number },
 })
 ```
 
@@ -595,7 +592,7 @@ const pinTotal = await buzzEntity.total({ network }: { network?: BtcNetwork })
 ```typescript
 
 create<T extends keyof InscribeResultForIfBroadcasting>({ data, options, }: {
-    data: SubMetaidData[];
+    dataArray: SubMetaidData[];
     options: {
         noBroadcast: T;
         feeRate?: number;
@@ -616,10 +613,10 @@ type SubMetaidData = {
 }
 
  const createRes = await buzzEntity.create({
-    data,
+    dataArray,
     options,
   }: {
-    data: SubMetaidData[]
+    dataArray: SubMetaidData[]
     options: {
         noBroadcast: T;
         feeRate?: number;

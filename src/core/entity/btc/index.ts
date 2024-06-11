@@ -114,10 +114,10 @@ export class BtcEntity {
 
   @connected
   public async create<T extends keyof InscribeResultForIfBroadcasting>({
-    data,
+    dataArray,
     options,
   }: {
-    data: SubMetaidData[]
+    dataArray: SubMetaidData[]
     options: {
       noBroadcast: T
       feeRate?: number
@@ -130,7 +130,7 @@ export class BtcEntity {
     const path = this.schema.path
     // console.log('pin path', path)
     const res = await this.connector.inscribe({
-      inscribeDataArray: data.map((d) => ({ ...d, operation: 'create', path })),
+      inscribeDataArray: dataArray.map((d) => ({ ...d, operation: 'create', path })),
       options,
     })
 

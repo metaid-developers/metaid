@@ -67,11 +67,23 @@ export class MvcEntity {
   }
 
   @connected
-  public async create({ data, options }: { data: SubMetaidData; options: { network: BtcNetwork } }) {
+  public async create({
+    data,
+    options,
+  }: {
+    data: SubMetaidData
+    options: {
+      network: BtcNetwork
+      signMessage?: string
+      serialAction?: 'combo' | 'finish'
+      transactions?: Transaction[]
+    }
+  }) {
     const path = this.schema.path
     // console.log('pin path', path)
-    const res = await this.connector.createPin({ ...data, operation: 'create', path }, { network: options.network })
+    const res = await this.connector.createPin({ ...data, operation: 'create', path }, options)
     console.log('res', res)
+
     return res
   }
 

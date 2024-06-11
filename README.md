@@ -64,9 +64,9 @@ type CreateRes: {
 
 ## Some more complex use cases
 
-### Example A - Create a buzz with attachments
+### Example A(1) - Create a buzz with attachments(BTC VERSION)
 
-#### Step 1 - define a new file entity schema
+#### Step 1 - define a new file entity schema(BTC VERSION)
 
 ```ts
 const fileSchema = {
@@ -82,7 +82,7 @@ const fileSchema = {
 }
 ```
 
-#### Step 2 - We can generate PINID based on this schema. It is worth noting that you need to transform binary image data to hex format with Buffer.from method
+#### Step 2 - We can generate PINID based on this schema. It is worth noting that you need to transform binary image data to hex format with Buffer.from method(BTC VERSION)
 
 ```ts
 type CreateOptions = {
@@ -119,13 +119,74 @@ await sleep(5000)
 console.log('finalBody', finalBody)
 ```
 
-#### Step 3 - We can create a buzz with three image attachments
+#### Step 3 - We can create a buzz with three image attachments(BTC VERSION)
 
 ```ts
 const createRes = await buzzEntity.create({
   options: [{ body: JSON.stringify(finalBody) }],
   noBroadcast: 'no',
   feeRate: selectFeeRate?.number,
+})
+```
+
+### Example A(2) - Create a buzz with attachments(MVC VERSION)
+
+#### Step 1 - import methods and define mvcConnector、buzzEntity、fileEntity
+
+```ts
+import {
+  MvcTransaction
+  MetaletWalletForMvc,
+  mvcConnect,
+} from '@metaid/metaid'
+
+const _wallet = await MetaletWalletForMvc.create()
+const mvcConnector = await mvcConnect({ wallet: _wallet, network: 'testnet' })
+const buzzEntity = mvcConnector.use('buzz')
+const fileEntity = mvcConnector.use('file')
+```
+
+#### Step 2 - create file transction(MVC VERSION)
+
+```ts
+let body = { content }
+let fileTransactions: MvcTransaction[] = []
+if (!isNil(attachments) && !isEmpty(attachments)) {
+  const attachMetafileUri = []
+  // console.log("file", "start");
+  for (const image of attachments) {
+    const { transactions: txs } = await fileEntity.create({
+      data: {
+        body: Buffer.from(image.data, 'hex').toString('base64'),
+        contentType: `${image.fileType};binary`,
+        encoding: 'base64',
+        flag: 'testid',
+      },
+      options: {
+        dataType: a.fileType,
+        signMessage: 'upload image file',
+        serialAction: 'combo',
+        transactions: fileTransactions,
+      },
+    })
+    attachMetafileUri.push('metafile://' + txs[txs.length - 1].txComposer.getTxId() + 'i0')
+    fileTransactions = txs
+    console.log('fileTransactions: ', fileTransactions)
+  }
+  body.attachments = attachMetafileUri
+}
+```
+
+#### Step 3 - We can create a buzz with three image attachments(MVC VERSION)
+
+```ts
+const { txid } = await buzzEntity.create({
+  data: { body: JSON.stringify(body), contentType: 'application/json;utf-8', flag: 'testid' },
+  options: {
+    signMessage: 'create buzz',
+    serialAction: 'finish',
+    transactions: fileTransactions,
+  },
 })
 ```
 

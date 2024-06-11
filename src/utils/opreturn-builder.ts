@@ -1,4 +1,5 @@
 import { BrfcRootName, ProtocolName } from '@/data/protocols.js'
+import { BtcNetwork } from '@/service/btc'
 import { Encryption, MetaidData, Operation } from '@/types'
 import { isNil } from 'ramda'
 type OpReturnV2 = [
@@ -11,18 +12,21 @@ type OpReturnV2 = [
   string | Buffer | undefined,
 ]
 
-export function buildOpReturnV2(metaidData: Omit<MetaidData, 'revealAddr'>): OpReturnV2 {
-  const res1 = ['testid', metaidData.operation]
+export function buildOpReturnV2(
+  metaidData: Omit<MetaidData, 'revealAddr'>,
+  options?: { network: BtcNetwork }
+): OpReturnV2 {
+  const res1 = [options?.network === 'mainnet' ? 'metaid' : 'testid', metaidData.operation]
   let res2 = []
   if (metaidData.operation !== 'init') {
     res2.push(metaidData.path!)
     res2.push(metaidData?.encryption ?? '0')
     res2.push(metaidData?.version ?? '1.0.0')
-    res2.push(metaidData?.contentType ?? 'utf-8')
+    res2.push(metaidData?.contentType ?? 'text/plain;utf-8')
 
     const body = isNil(metaidData.body)
       ? undefined
-      : Buffer.isBuffer(metaidData.body)
+      : Buffer.isBuffer(metaidData.body) || typeof metaidData.body === 'string'
         ? metaidData.body
         : JSON.stringify(metaidData.body)
 

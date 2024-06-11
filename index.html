@@ -190,14 +190,14 @@
 
           const createBuzzForMVC = async () => {
             console.log('I wanna publish a buzz:', content.value)
-            const res = await toRaw(Buzz.value).list({
-              page: 1,
-              limit: 5,
-              address: 'mnQFdT8SC7mmvV96wvuUQ3QPt2W9gvUT64',
-            })
-            console.log({ res })
+            // const res = await toRaw(Buzz.value).list({
+            //   page: 1,
+            //   limit: 5,
+            //   address: 'mnQFdT8SC7mmvV96wvuUQ3QPt2W9gvUT64',
+            // })
+            // console.log({ res })
 
-            // await toRaw(Buzz.value).create({ data: { body: content.value }, options: { network: 'testnet' } })
+            await toRaw(Buzz.value).create({ data: { body: content.value + 'dd' }, options: { network: 'testnet' } })
           }
           const createBuzzPictureForMVC = async () => {
             let attachMetafileUri = []

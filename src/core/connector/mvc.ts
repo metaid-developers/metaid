@@ -108,7 +108,7 @@ export class MvcConnector implements IMvcConnector {
       satoshis: 546,
     })
 
-    const metaidOpreturn = buildOpReturnV2(metaidData)
+    const metaidOpreturn = buildOpReturnV2(metaidData, { network: options?.network ?? 'testnet' })
 
     pinTxComposer.appendOpReturnOutput(metaidOpreturn)
 
@@ -289,7 +289,9 @@ export class MvcConnector implements IMvcConnector {
           operation: 'create',
           body: body?.avatar,
           path: '/info/avatar',
+          encoding: 'base64',
           flag: body?.network === 'mainnet' ? 'metaid' : 'testid',
+          contentType: 'image/jpeg;binary',
         },
         { network: body?.network ?? 'testnet' }
       )

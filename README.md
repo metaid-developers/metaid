@@ -160,7 +160,7 @@ if (!isNil(attachments) && !isEmpty(attachments)) {
         flag: 'testid',
       },
       options: {
-        dataType: a.fileType,
+        network: 'testnet',
         signMessage: 'upload image file',
         serialAction: 'combo',
         transactions: fileTransactions,
@@ -183,6 +183,7 @@ const { txid } = await buzzEntity.create({
     signMessage: 'create buzz',
     serialAction: 'finish',
     transactions: fileTransactions,
+    network: 'testnet',
   },
 })
 ```
@@ -272,6 +273,7 @@ const followrRes = await followEntity.create({
   options:
     {
       network: 'testnet'
+      signMessage: 'follow user'
     }
 })
 ```

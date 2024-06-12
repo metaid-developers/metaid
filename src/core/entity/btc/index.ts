@@ -83,8 +83,9 @@ export class BtcEntity {
         cursor: ((Number(page) - 1) * Number(limit)).toString(),
         size: limit.toString(),
         network: network ?? 'testnet',
+        path: this.schema.path,
       })
-      return pins.list.filter((d) => d.path.includes(this.schema.path))
+      return pins.list
     }
 
     const pins = await getAllPinByPath({ path, page, limit, network: network ?? this.connector.network })

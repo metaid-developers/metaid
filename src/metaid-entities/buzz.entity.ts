@@ -18,6 +18,10 @@ const buzzSchema: EntitySchema = {
           type: 'string',
         },
         {
+          name: 'quoteTx',
+          type: 'string',
+        },
+        {
           name: 'attachments',
           type: 'array',
         },

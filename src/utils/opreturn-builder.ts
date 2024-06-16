@@ -24,12 +24,16 @@ export function buildOpReturnV2(
     res2.push(metaidData?.version ?? '1.0.0')
     res2.push(metaidData?.contentType ?? 'text/plain;utf-8')
 
+    // const body = isNil(metaidData.body)
+    //   ? undefined
+    //   : Buffer.isBuffer(metaidData.body) || typeof metaidData.body === 'string'
+    //     ? metaidData.body
+    //     : JSON.stringify(metaidData.body)
     const body = isNil(metaidData.body)
       ? undefined
-      : Buffer.isBuffer(metaidData.body) || typeof metaidData.body === 'string'
+      : Buffer.isBuffer(metaidData.body)
         ? metaidData.body
-        : JSON.stringify(metaidData.body)
-
+        : Buffer.from(metaidData.body, metaidData?.encoding ?? 'utf-8')
     res2.push(body)
     // const maxChunkSize = 520
     // const bodySize = (body as Buffer).length

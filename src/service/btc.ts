@@ -187,20 +187,22 @@ export async function getPinListByAddress({
   network,
   cursor,
   size,
+  path,
   cnt = true,
   addressType = 'owner',
 }: {
   address: string
-  addressType?: string
   network: BtcNetwork
   cursor: string
   size: string
+  path: string
+  addressType?: string
   cnt?: boolean
 }): Promise<{ list: Pin[] | null; total: number }> {
   const url = `${MAN_BASE_URL_MAPPING[network]}/api/address/pin/list/${addressType}/${address}`
 
   try {
-    const data = await axios.get(url, { params: { cnt, cursor, size } }).then((res) => res.data)
+    const data = await axios.get(url, { params: { cnt, cursor, size, path } }).then((res) => res.data)
     return data.data
   } catch (error) {
     console.error(error)

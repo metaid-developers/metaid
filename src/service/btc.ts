@@ -12,9 +12,10 @@ export type Utxo = {
 export type Pin = {
   id: string
   number: number
-  rootTxId: string
+  metaid: string
   address: string
-  createAddress: string
+  creator: string
+  initialOwner: string
   output: string
   outputValue: number
   timestamp: number
@@ -22,23 +23,28 @@ export type Pin = {
   genesisHeight: number
   genesisTransaction: string
   txInIndex: number
-  txInOffset: number
+  offset: number
+  location: string
   operation: string
   path: string
   parentPath: string
+  originalPath: string
   encryption: string
   version: string
   contentType: string
-  contentBody: string
+  contentTypeDetect: string // text/plain; charset=utf-8
+  contentBody: any
   contentLength: number
   contentSummary: string
   status: number
   originalId: string
   isTransfered: boolean
-  preview: string
-  content: string
+  preview: string // "https://man-test.metaid.io/pin/4988b001789b5dd76db60017ce85ccbb04a3f2aa825457aa948dc3c1e3b6e552i0";
+  content: string // "https://man-test.metaid.io/content/4988b001789b5dd76db60017ce85ccbb04a3f2aa825457aa948dc3c1e3b6e552i0";
   pop: string
-  metaid: string
+  popLv: number
+  chainName: string
+  dataValue: number
 }
 
 // export type UserInfo = {
@@ -188,8 +194,8 @@ export async function getPinListByAddress({
   cursor,
   size,
   path,
-  cnt = true,
   addressType = 'owner',
+  cnt = true,
 }: {
   address: string
   network: BtcNetwork

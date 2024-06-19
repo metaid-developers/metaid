@@ -125,6 +125,7 @@ export class MvcConnector implements IMvcConnector {
     const payRes = await this.pay({
       transactions,
     })
+    console.log('payRes', payRes)
     // for (const txComposer of payRes) {
     //   await this.connector.broadcast(txComposer)
     // }

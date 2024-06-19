@@ -92,8 +92,8 @@
     <script type="module">
       import { createApp, ref, computed, toRaw } from 'vue'
       import {
-        Transaction,
-        Psbt,
+        // Transaction,
+        // Psbt,
         // LocalWallet,
         MetaletWalletForMvc,
         MetaletWalletForBtc,
@@ -158,8 +158,11 @@
 
             const mvcConnector = await mvcConnect({ wallet: _wallet, network: 'testnet' })
 
-            const handler = await mvcConnector.use('buzz')
-            Buzz.value = handler
+            const handler1 = await mvcConnector.use('buzz')
+            Buzz.value = handler1
+
+            const handler = await mvcConnector.use('file')
+            File.value = handler
           }
 
           const getBtcAddress = async () => {
@@ -200,14 +203,43 @@
             await toRaw(Buzz.value).create({ data: { body: content.value + 'dd' }, options: { network: 'testnet' } })
           }
           const createBuzzPictureForMVC = async () => {
-            let attachMetafileUri = []
+            let attachMetafileUri = [
+              'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZIgAAAVxSURBVGiB5ZpPbxNHGMafd2btODgJiRz/d5MQVDUVwrWwIieHiO0X4APwJeBQJMKpJ0IQl34JxKFV1aoXEJWMAoeIf1bCAdQSIJGdbiJkSGKceNfz9oCdJsGO116btOrvZM/MO/s8s+OZ17NLaAPxeNwrpTwuhPAppXqUEB5m7iJAAwAGLCLaEUptCyG2lFJvy+Xy+4WFhYLTa1Orgbque94WChGhVISA48zcVF9ExAy8V0LkfF5vLp1Ob7eio2kDyWTyWAk4SczR6gg7hQGLibJu4OXjx48/NBNr24Cu69q7YvEEm+YoAFfTKu1hksu11N/d/SqdTlt2AmwZSKVSfaVSKaGI+pzps4dg3nC73Zn5+fmNRm1lowbxeDxWBs4w0bH2yGsME3VZSkWCfv+OYRiHmjjUwOnx8VEp5Skwt2WuN4kUmhbwR6PltVwuX7dRvYrT4+OjUqmvmVl0Rp8NmEkAg/5YrK6Jmgbi8XhMSnnqSMX/AwkiX2BwsFhrOn1iIJVK9ZWBM0c0bWrDTCSEb2RoaD2bze7srdo3wrqua6VSKYHOLZNOcJVKpYSu6/sGdp+Bd8Xiic+1VLaCIup7Vyye2Fu2ayCZTB6rbFKHcn32xrk7t+/e+vWX336YmjobdCpqaups8Kcff7565/bdW9dnb5xr1J5NczSZTO4u6bsGSsBJ2Jg6iUTivKZp3p6entHpy9NXnZiYmjobnL48fXVgYOC0pmneRCJx3kaYq6IVQMWAruseYo7auejm5uZS9bPH4wm0aqIq3uPxBKpl29vbhp1YYo7quu4BKqtQr98/JJhtiVhd/evZ5MTkhKZpXgDQNM07OTE5sbyyMr+8/MZWelxH/Nrs9dnv7fRBgPhgWdtruVxeAkA4HD4FwGPn4svLbwrLKyvzrZqoJ37m2syVubl7tu5AxYTLWF1dlvF43CukHEMTmWmrJtolHgCIqCvg9+dkJBLxMxBpJrgVE+0UX/UgifIyGo2OKKC/hQ5sm+iAeACAFKIkQ6HQSSepciMTw8MjPZ0QDwBgLtM3yeS3YPY66gj1Rxn4uNzuLWuLeAAgKshgODxGB1KKVqh3J6qfgTaLB8CAkKFweKwdnQG1TVRpt3jg437wb8j3HSGD4fBoO6YQUPt3UKWVHbsRDFgyFIl8AcDttLN6P2LLsgpO0o7DIKKijIRCYacnDoet8/fv3//dae5UD8G8KaPR6ECrG1kj8XNz9wynudNhSCHWZSgU0pgo3Anx1bKOmWBekoFAQAkpR9DkOWmz6UG7TRARK8t6IQ3DMIORSBA20+lWxHfEBNH7hUzmpQSAQCymEbO/k+LbbUJJubSWy+UFAPi83hwDtk6DL3136YrT3GZu7p4xc23mSjVXAj7mSxcvXLxgJ54By+f15oDKBpZOp7eZKGsn2OPx7P71dJIe1DLR29vb8FQEAJgoW30gsrsDu4GXAMxGwZlM5qZlWYV8Pr/oNLepmtja2lqyLKuQyWRu2ggzK1oBHFh5EqnUl2yaX7Uq6HNALteLzPz8H9Xv+3Kg/u7uV4K54UOFo0Iwb/R3d7/aW7bvcPf169dqeHg4bykVOVj3L8DscrsfPXjwoLi38BOR2Wx2J+j37whNC6DJJ4+dgoRQbJrPnjx5sn6wruYoG4ax4Y9GywIYhINHse2AiLgsxPPFp0/f1KqvO03Wcrm8PxYrCyLfUd0JEkKVhXi++PDhUr02h87ztVwuHxgcLJIQvkZtO4DJpvms3shXaSjKMIyNkaGhdVUuDzBRV/v01Ucwb3S53Y9qzfmD2BrVbDa7MzY2lt1RqgyljtuNawGTXK4/+3t6Fg+uNvX4/7xqcJD/7MsetTjK123+Bib+qa2rskiUAAAAAElFTkSuQmCC',
+            ]
             console.log('file', 'start')
-            for (const a of attachments) {
-              const { txid: id } = await toRaw(File.value).create(a.data, { dataType: a.fileType })
-              attachMetafileUri.push('metafile://' + id)
+            let fileTransactions = []
+            let finalAttachMetafileUri = []
+            for (const a of attachMetafileUri) {
+              const { transactions: txs } = await toRaw(File.value).create({
+                data: {
+                  body: Buffer.from(a, 'hex').toString('base64'),
+                  contentType: `image/jpeg;binary`,
+                  encoding: 'base64',
+                  flag: 'testid',
+                },
+                options: {
+                  network: 'testnet',
+                  signMessage: 'upload image file',
+                  serialAction: 'combo',
+                  transactions: fileTransactions,
+                },
+              })
+              finalAttachMetafileUri.push('metafile://' + txs[txs.length - 1].txComposer.getTxId() + 'i0')
+              fileTransactions = txs
             }
-            console.log('attachMetafileUri', attachMetafileUri)
-            await toRaw(Buzz.value).create({ content: content.value, attachments: attachMetafileUri })
+
+            const finalBody = { content: 'Hello World image-with-png', attachments: finalAttachMetafileUri }
+            await toRaw(Buzz.value).create({
+              data: { body: JSON.stringify(finalBody) },
+              options: {
+                network: 'testnet',
+                signMessage: 'create buzz',
+                serialAction: 'finish',
+                transactions: fileTransactions,
+              },
+            })
+            // console.log('attachMetafileUri', attachMetafileUri)
+            // await toRaw(Buzz.value).create({ content: content.value, attachments: attachMetafileUri })
           }
 
           const getBuzzList = async () => {

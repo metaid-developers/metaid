@@ -7,7 +7,6 @@ const simpleVoteSchema: EntitySchema = {
   versions: [
     {
       version: 1,
-      id: '206cbf182ee1',
       body: [
         {
           name: 'symbol',

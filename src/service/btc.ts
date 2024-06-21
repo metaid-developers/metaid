@@ -166,7 +166,7 @@ export async function getRootPinByAddress({
   }
 }
 
-export async function getAllPinByPath({
+export async function fetchAllPinByPath({
   page,
   limit,
   path,
@@ -178,10 +178,23 @@ export async function getAllPinByPath({
   network: BtcNetwork
 }): Promise<{ total: number; currentPage: Pin[] } | null> {
   const url = `${MAN_BASE_URL_MAPPING[network]}/api/getAllPinByPath?page=${page}&limit=${limit}&path=${path}`
-  console.log('all pin by path', url)
   try {
     const data = await axios.get(url).then((res) => res.data)
     return { total: data.data.total, currentPage: data.data.list }
+  } catch (error) {
+    console.error(error)
+    return null
+  }
+}
+export async function fetchAllPin(params: {
+  page: number
+  size: number
+  network: BtcNetwork
+}): Promise<{ total: number; currentPage: Pin[] } | null> {
+  const url = `${MAN_BASE_URL_MAPPING[params.network]}/api/pin/list`
+  try {
+    const data = await axios.get(url, { params }).then((res) => res.data)
+    return { total: data.data.Pin, currentPage: data.data.Pins }
   } catch (error) {
     console.error(error)
     return null

@@ -7,7 +7,6 @@ const buzzSchema: EntitySchema = {
   versions: [
     {
       version: 1,
-      id: 'b17e9e277bd7',
       body: [
         {
           name: 'content',

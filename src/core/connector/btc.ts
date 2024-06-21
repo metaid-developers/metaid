@@ -400,6 +400,13 @@ export class BtcConnector implements IBtcConnector {
     return (await fetchAllPinByPath({ path: path.join(','), page, limit, network: network ?? 'testnet' })).currentPage
   }
 
+  async totalPin({ network, path }: { network?: BtcNetwork; path?: string[] }) {
+    if (isNil(path)) {
+      return (await fetchAllPin({ page: 1, size: 1, network: network ?? 'testnet' })).total
+    }
+    return (await fetchAllPinByPath({ path: path.join(','), page: 1, limit: 1, network: network ?? 'testnet' })).total
+  }
+
   /**
    * wallet delegation
    * signInput / send / broadcast / getPublicKey / getAddress / signMessage / pay

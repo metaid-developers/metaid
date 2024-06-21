@@ -3,7 +3,7 @@ import { BtcEntity, InscribeData } from '../entity/btc'
 import { EntitySchema } from '@/metaid-entities/entity'
 import { MetaIDWalletForBtc } from '@/wallets/metalet/btcWallet'
 import { UserInfo } from '@/types'
-import { BtcNetwork } from '@/service/btc'
+import { BtcNetwork, Pin } from '@/service/btc'
 
 export interface BtcConnectorStatic {
   create: ({ wallet, network }: { wallet?: MetaIDWalletForBtc; network: BtcNetwork }) => Promise<IBtcConnector>
@@ -84,4 +84,16 @@ export type IBtcConnector = {
   load(entitySchema: EntitySchema): Promise<BtcEntity>
   isConnected(): boolean
   disconnect(): void
+  getAllpin({
+    page,
+    limit,
+    network,
+    path,
+  }: {
+    page: number
+    limit: number
+    network?: BtcNetwork
+    path?: string[]
+  }): Promise<Pin[]>
+  totalPin({ network, path }: { network?: BtcNetwork; path?: string[] }): Promise<number>
 }

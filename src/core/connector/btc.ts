@@ -388,12 +388,26 @@ export class BtcConnector implements IBtcConnector {
     limit,
     network,
     path,
+    address,
   }: {
     page: number
     limit: number
     network?: BtcNetwork
     path?: string[]
+    address?: string
   }) {
+    if (!isNil(address)) {
+      return (
+        await getPinListByAddress({
+          address,
+          path: !isNil(path) ? path.join(',') : undefined,
+          cursor: (page - 1).toString(),
+          size: limit.toString(),
+          network: network ?? 'testnet',
+        })
+      ).list
+    }
+
     if (isNil(path)) {
       return (await fetchAllPin({ page, size: limit, network: network ?? 'testnet' })).currentPage
     }

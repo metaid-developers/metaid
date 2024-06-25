@@ -17,7 +17,7 @@ const buzzSchema: EntitySchema = {
           type: 'string',
         },
         {
-          name: 'quoteTx',
+          name: 'quotePin',
           type: 'string',
         },
         {

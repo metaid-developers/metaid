@@ -94,6 +94,7 @@ export type IBtcConnector = {
     limit: number
     network?: BtcNetwork
     path?: string[]
+    address?: string
   }): Promise<Pin[]>
   totalPin({ network, path }: { network?: BtcNetwork; path?: string[] }): Promise<number>
 }

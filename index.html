@@ -212,7 +212,8 @@
             for (const a of attachMetafileUri) {
               const { transactions: txs } = await toRaw(File.value).create({
                 data: {
-                  body: Buffer.from(a, 'hex').toString('base64'),
+                  // body: Buffer.from(a, 'hex').toString('base64'),
+                  body: Buffer.from(a, 'base64'),
                   contentType: `image/jpeg;binary`,
                   encoding: 'base64',
                   flag: 'testid',

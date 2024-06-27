@@ -136,7 +136,7 @@ export class MvcConnector implements IMvcConnector {
       console.log('mvc pin txid: ' + txid)
       const isValid = !!(await fetchTxid({ txid, network: options.network }))
       if (isValid) {
-        await notify({ txHex: p.getRawHex() })
+        await notify({ txHex: p.getRawHex(), network: options.network })
       } else {
         throw new Error('txid is not valid')
       }

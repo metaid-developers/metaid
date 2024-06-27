@@ -197,8 +197,11 @@ export async function fetchBuzzes({ metaid, page }: { metaid?: string; page: num
   }
 }
 
-export async function notify({ txHex }: { txHex: string }) {
-  const url = 'https://api.metaid.io/metaid-base/v1/meta/upload/raw'
+export async function notify({ txHex, network }: { txHex: string; network: BtcNetwork }) {
+  const url =
+    network === 'mainnet'
+      ? 'https://api.metaid.io/metaid-base/v1/meta/upload/raw'
+      : 'testmvc.showmoney.app/metaid-base/'
 
   const notifyRes = await axios.post(url, {
     raw: txHex,

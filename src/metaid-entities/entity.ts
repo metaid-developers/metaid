@@ -4,7 +4,6 @@ export type EntitySchema = {
   path: string
   versions: {
     version: number
-    id: string
     body: any[]
   }[]
 }

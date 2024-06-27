@@ -5,7 +5,6 @@ const likeSchema = {
   versions: [
     {
       version: 1,
-      id: '2ae43eeb26d9',
       body: [
         {
           name: 'likeTo',

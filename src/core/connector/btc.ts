@@ -5,7 +5,15 @@ import type { EntitySchema } from '@/metaid-entities/entity.js'
 import { loadBtc } from '@/factories/load.js'
 import { errors } from '@/data/errors.js'
 import type { MetaIDWalletForBtc } from '@/wallets/metalet/btcWallet.js'
-import { broadcast, fetchUtxos, getInfoByAddress, getRootPinByAddress, getPinListByAddress } from '@/service/btc'
+import {
+  broadcast,
+  fetchUtxos,
+  getInfoByAddress,
+  getRootPinByAddress,
+  getPinListByAddress,
+  fetchAllPin,
+  fetchAllPinByPath,
+} from '@/service/btc'
 import * as bitcoin from '../../utils/btc-inscribe/bitcoinjs-lib'
 import { Operation, PrevOutput } from '../../utils/btc-inscribe/inscribePsbt'
 import { InscribeData } from '../entity/btc'
@@ -373,6 +381,44 @@ export class BtcConnector implements IBtcConnector {
   disconnect() {
     this._isConnected = false
     this.wallet = undefined
+  }
+
+  async getAllpin({
+    page,
+    limit,
+    network,
+    path,
+    address,
+  }: {
+    page: number
+    limit: number
+    network?: BtcNetwork
+    path?: string[]
+    address?: string
+  }) {
+    if (!isNil(address)) {
+      return (
+        await getPinListByAddress({
+          address,
+          path: !isNil(path) ? path.join(',') : undefined,
+          cursor: (page - 1).toString(),
+          size: limit.toString(),
+          network: network ?? 'testnet',
+        })
+      ).list
+    }
+
+    if (isNil(path)) {
+      return (await fetchAllPin({ page, size: limit, network: network ?? 'testnet' })).currentPage
+    }
+    return (await fetchAllPinByPath({ path: path.join(','), page, limit, network: network ?? 'testnet' })).currentPage
+  }
+
+  async totalPin({ network, path }: { network?: BtcNetwork; path?: string[] }) {
+    if (isNil(path)) {
+      return (await fetchAllPin({ page: 1, size: 1, network: network ?? 'testnet' })).total
+    }
+    return (await fetchAllPinByPath({ path: path.join(','), page: 1, limit: 1, network: network ?? 'testnet' })).total
   }
 
   /**

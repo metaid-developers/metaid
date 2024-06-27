@@ -6,7 +6,6 @@ const fileSchema = {
   versions: [
     {
       version: '1.0.1',
-      id: 'fcac10a5ed83',
       body: '',
     },
   ],

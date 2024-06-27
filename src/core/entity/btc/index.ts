@@ -9,7 +9,14 @@ import {
 import { Psbt } from '../../../utils/btc-inscribe/bitcoinjs-lib/psbt.js'
 
 import * as bitcoin from '../../../utils/btc-inscribe/bitcoinjs-lib/index.js'
-import { BtcNetwork, fetchUtxos, getAllPinByPath, getPinDetailByPid, getPinListByAddress, Pin } from '@/service/btc.js'
+import {
+  BtcNetwork,
+  fetchUtxos,
+  fetchAllPinByPath,
+  getPinDetailByPid,
+  getPinListByAddress,
+  Pin,
+} from '@/service/btc.js'
 import { errors } from '@/data/errors.js'
 import type { BtcConnector, InscribeResultForIfBroadcasting } from '@/core/connector/btc.js'
 import { isNil } from 'ramda'
@@ -88,13 +95,13 @@ export class BtcEntity {
       return pins.list
     }
 
-    const pins = await getAllPinByPath({ path, page, limit, network: network ?? this.connector.network })
+    const pins = await fetchAllPinByPath({ path, page, limit, network: network ?? this.connector.network })
     return pins.currentPage.filter((d) => d.path.includes(this.schema.path))
   }
 
   public async total({ network }: { network?: BtcNetwork }): Promise<number> {
     const path = this.schema.path
-    const pins = await getAllPinByPath({ path, page: 1, limit: 2, network: network ?? this.connector.network })
+    const pins = await fetchAllPinByPath({ path, page: 1, limit: 2, network: network ?? this.connector.network })
     return pins.total
   }
 

@@ -154,7 +154,7 @@ if (!isNil(attachments) && !isEmpty(attachments)) {
   for (const image of attachments) {
     const { transactions: txs } = await fileEntity.create({
       data: {
-        body: Buffer.from(image.data, 'hex').toString('base64'),
+        body: Buffer.from(image.data, 'base64') // Please note that this is different from the BTC version
         contentType: `${image.fileType};binary`,
         encoding: 'base64',
         flag: 'testid',

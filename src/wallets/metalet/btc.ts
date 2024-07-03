@@ -25,14 +25,14 @@ export class MetaletWalletForBtc implements MetaIDWalletForBtc {
 
     // get xpub from metalet
 
-    const pub: string = await window.metaidwallet.btc.getPublicKey()
+    // const pub: string = await window.metaidwallet.btc.getPublicKey()
 
     const wallet = new MetaletWalletForBtc()
 
     const connectRes = await window.metaidwallet.btc.connect()
     if (!isNil(connectRes?.address)) {
       wallet.address = connectRes.address
-      wallet.pub = pub
+      wallet.pub = connectRes.pubKey
       wallet.internal = window.metaidwallet
       wallet.network = (await window.metaidwallet.getNetwork()).network
     }

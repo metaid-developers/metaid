@@ -237,11 +237,11 @@ const likeRes = await likeEntity.create({
 #### Step 1 - You need to create a new file named **follow.entity.ts**, and place the following code in this file
 
 ```ts
-import EntitySchema from '@metaid/metaid'
-const followSchema:EntitySchema = {
+import { EntitySchema } from '@metaid/metaid'
+const followSchema: EntitySchema = {
   name: 'follow',
   nodeName: 'follow',
-  path:'/follow'
+  path: '/follow',
   versions: [
     {
       version: 1,

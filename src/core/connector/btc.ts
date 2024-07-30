@@ -401,7 +401,7 @@ export class BtcConnector implements IBtcConnector {
         await getPinListByAddress({
           address,
           path: !isNil(path) ? path.join(',') : undefined,
-          cursor: (page - 1).toString(),
+          cursor: ((page - 1) * limit).toString(),
           size: limit.toString(),
           network: network ?? 'testnet',
         })

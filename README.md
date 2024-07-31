@@ -262,7 +262,7 @@ const followSchema: EntitySchema = {
 import { loadMvc } from '@metaid/metaid' // loadBtc form btc chain
 import followSchema from '@/metaid-entities/follow.entity.js' // assume @/metaid-entities/follow.entity.js is the location where your place follow.entity.ts file, you need to impport .js type
 
-const followEntity = await loadMvc(followSchema, options: { connector: MvcConnector}) // You can pass MvcConnector as optional parameter
+const followEntity = await loadMvc(followSchema,  { connector: MvcConnector}) // You can pass MvcConnector as optional parameter
 
 const followrRes = await followEntity.create({
   data:

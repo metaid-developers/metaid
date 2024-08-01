@@ -17,7 +17,7 @@ import {
 import * as bitcoin from '../../utils/btc-inscribe/bitcoinjs-lib'
 import { Operation, PrevOutput } from '../../utils/btc-inscribe/inscribePsbt'
 import { InscribeData } from '../entity/btc'
-import { isNil, isEmpty } from 'ramda'
+import { isNil, isEmpty, sum } from 'ramda'
 import { BtcConnectorStatic, IBtcConnector } from './btcConnector'
 import { InscriptionRequest, MetaidData, UserInfo } from '@/types'
 import { BtcNetwork } from '@/service/btc.js'
@@ -105,6 +105,7 @@ export class BtcConnector implements IBtcConnector {
     options: {
       noBroadcast: T
       feeRate?: number
+      network?: BtcNetwork
       service?: {
         address: string
         satoshis: string
@@ -161,6 +162,39 @@ export class BtcConnector implements IBtcConnector {
       },
     })
     console.log('inscrible res', res)
+
+    // let finalRes
+
+    // if (options.noBroadcast === 'yes') {
+    //   finalRes = {
+    //     commitTxHex: res.commitTx.rawTx,
+    //     revealTxsHex: res.revealTxs.map((d) => d.rawTx),
+    //     commitCost: res.commitTx.fee,
+    //     revealCost: sum(res.revealTxs.map((d) => Number(d.fee))).toString(),
+    //   } as InscribeResultForIfBroadcasting[T]
+    //   console.log('inscrible final res', finalRes)
+
+    //   return finalRes
+    // }
+
+    // const commitTxId = await this.broadcast({
+    //   txHex: res.commitTx.rawTx,
+    //   network: options?.network ?? 'testnet',
+    // })
+
+    // let revealTxIds = []
+    // for (const revealTx of res.revealTxs) {
+    //   const data = await this.broadcast({ txHex: revealTx.rawTx, network: options?.network ?? 'testnet' })
+    //   revealTxIds.push(data.data)
+    // }
+    // finalRes = {
+    //   commitTxId: commitTxId.data,
+    //   revealTxIds,
+    //   commitCost: res.commitTx.fee,
+    //   revealCost: sum(res.revealTxs.map((d) => Number(d.fee))).toString(),
+    // } as InscribeResultForIfBroadcasting[T]
+    // console.log('inscrible final res', finalRes)
+
     return res
   }
 
@@ -202,7 +236,12 @@ export class BtcConnector implements IBtcConnector {
               flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
-          options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+          options: {
+            noBroadcast: 'no',
+            feeRate: options?.feeRate ?? 1,
+            service: options?.service,
+            network: options?.network,
+          },
         })
       } else {
         nameRes = await this.inscribe({
@@ -214,7 +253,12 @@ export class BtcConnector implements IBtcConnector {
               flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
-          options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+          options: {
+            noBroadcast: 'no',
+            feeRate: options?.feeRate ?? 1,
+            service: options?.service,
+            network: options?.network,
+          },
         })
       }
     }
@@ -231,7 +275,12 @@ export class BtcConnector implements IBtcConnector {
               flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
-          options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+          options: {
+            noBroadcast: 'no',
+            feeRate: options?.feeRate ?? 1,
+            service: options?.service,
+            network: options?.network,
+          },
         })
       } else {
         bioRes = await this.inscribe({
@@ -243,7 +292,12 @@ export class BtcConnector implements IBtcConnector {
               flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
-          options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+          options: {
+            noBroadcast: 'no',
+            feeRate: options?.feeRate ?? 1,
+            service: options?.service,
+            network: options?.network,
+          },
         })
       }
     }
@@ -260,7 +314,12 @@ export class BtcConnector implements IBtcConnector {
               flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
-          options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+          options: {
+            noBroadcast: 'no',
+            feeRate: options?.feeRate ?? 1,
+            service: options?.service,
+            network: options?.network,
+          },
         })
       } else {
         avatarRes = await this.inscribe({
@@ -274,7 +333,12 @@ export class BtcConnector implements IBtcConnector {
               flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
             },
           ],
-          options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+          options: {
+            noBroadcast: 'no',
+            feeRate: options?.feeRate ?? 1,
+            service: options?.service,
+            network: options?.network,
+          },
         })
       }
     }
@@ -316,7 +380,12 @@ export class BtcConnector implements IBtcConnector {
         },
       ],
 
-      options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+      options: {
+        noBroadcast: 'no',
+        feeRate: options?.feeRate ?? 1,
+        service: options?.service,
+        network: options?.network,
+      },
     })
     console.log('inscribe nameRes', nameRes)
     if (!!userData?.bio) {
@@ -333,6 +402,7 @@ export class BtcConnector implements IBtcConnector {
           noBroadcast: 'no',
           feeRate: options?.feeRate ?? 1,
           service: options?.service,
+          network: options?.network,
         },
       })
     }
@@ -349,7 +419,12 @@ export class BtcConnector implements IBtcConnector {
           },
         ],
 
-        options: { noBroadcast: 'no', feeRate: options?.feeRate ?? 1, service: options?.service },
+        options: {
+          noBroadcast: 'no',
+          feeRate: options?.feeRate ?? 1,
+          service: options?.service,
+          network: options?.network,
+        },
       })
       console.log('inscribe avatarRes', avatarRes)
     }
@@ -432,12 +507,10 @@ export class BtcConnector implements IBtcConnector {
   //   return await this.wallet.signPsbt(psbtHex)
   // }
 
-  // async broadcast(txHex: string, network: Network, publicKey: string, message: string | undefined = '') {
+  // async broadcast({ txHex, network }: { txHex: string; network: BtcNetwork }) {
   //   return await broadcast({
   //     rawTx: txHex,
   //     network,
-  //     publicKey,
-  //     message,
   //   })
   // }
 

@@ -1,5 +1,20 @@
 import { Network, InscriptionRequest } from './types'
 
+// export type Tx = {
+//   address: string
+//   value: number
+// }
+// export type TxDetail = {
+//   fee: string
+//   txId: string
+//   rawTx: string
+//   txInputs: Tx[]
+//   txOutputs: Tx[]
+//   psbtHex: string
+// }
+
+// export type InscribeResult = { commitTx: TxDetail; revealTxs: TxDetail[] }
+
 // add wallet btc get network
 declare global {
   interface Window {
@@ -29,7 +44,7 @@ declare global {
           unconfirmed: number
         }>
         inscribe: ({ data, options }: { data: InscriptionRequest; options?: { noBroadcast: boolean } }) => Promise<any>
-        process: ({ data, options }: { data: InscriptionRequest; options?: { noBroadcast: boolean } }) => Promise<any>
+        // process: ({ data, options }: { data: InscriptionRequest; options?: { noBroadcast: boolean } }) => Promise<any>
       }
     }
   }

@@ -3,7 +3,7 @@ import { BtcNetwork } from '@/service/btc'
 import { Encryption, MetaidData, Operation } from '@/types'
 import { isNil } from 'ramda'
 type OpReturnV2 = [
-  'testid', // testid for Testnet, metaid for Mainnet
+  'metaid', // metaid for Testnet, metaid for Mainnet
   Operation,
   string | undefined, // path example: /protocols/simplebuzz
   Encryption | undefined,
@@ -16,7 +16,7 @@ export function buildOpReturnV2(
   metaidData: Omit<MetaidData, 'revealAddr'>,
   options?: { network: BtcNetwork }
 ): OpReturnV2 {
-  const res1 = [options?.network === 'mainnet' ? 'metaid' : 'testid', metaidData.operation]
+  const res1 = ['metaid', metaidData.operation]
   let res2 = []
   if (metaidData.operation !== 'init') {
     res2.push(metaidData.path!)

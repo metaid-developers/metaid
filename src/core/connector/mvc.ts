@@ -170,7 +170,7 @@ export class MvcConnector implements IMvcConnector {
     //   operation: 'create',
     //   body: body.name,
     //   path: '/info/name',
-    //   flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+    //   flag: 'metaid',
     // },
     // { network: options?.network ?? 'testnet' }
 
@@ -182,7 +182,7 @@ export class MvcConnector implements IMvcConnector {
             operation: 'create',
             body: userData?.name,
             path: `/info/name`,
-            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: 'metaid',
           },
           { network: options?.network ?? 'testnet' }
         )
@@ -192,7 +192,7 @@ export class MvcConnector implements IMvcConnector {
             operation: 'modify',
             body: userData?.name,
             path: `@${this?.user?.nameId ?? ''}`,
-            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: 'metaid',
           },
 
           { network: options?.network ?? 'testnet' }
@@ -208,7 +208,7 @@ export class MvcConnector implements IMvcConnector {
             operation: 'create',
             body: userData?.bio,
             path: `/info/bio`,
-            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: 'metaid',
           },
 
           { network: options?.network ?? 'testnet' }
@@ -219,7 +219,7 @@ export class MvcConnector implements IMvcConnector {
             operation: 'modify',
             body: userData?.bio,
             path: `@${this?.user?.bioId ?? ''}`,
-            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: 'metaid',
           },
           { network: options?.network ?? 'testnet' }
         )
@@ -234,7 +234,7 @@ export class MvcConnector implements IMvcConnector {
             path: `/info/avatar`,
             encoding: 'base64',
             contentType: 'image/jpeg;binary',
-            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: 'metaid',
           },
           { network: options?.network ?? 'testnet' }
         )
@@ -246,7 +246,7 @@ export class MvcConnector implements IMvcConnector {
             path: `@${this?.user?.avatarId ?? ''}`,
             encoding: 'base64',
             contentType: 'image/jpeg;binary',
-            flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+            flag: 'metaid',
           },
           { network: options?.network ?? 'testnet' }
         )
@@ -277,7 +277,7 @@ export class MvcConnector implements IMvcConnector {
         operation: 'create',
         body: userData.name,
         path: '/info/name',
-        flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+        flag: 'metaid',
       },
       { network: options?.network ?? 'testnet' }
     )
@@ -287,7 +287,7 @@ export class MvcConnector implements IMvcConnector {
           operation: 'create',
           body: userData.name,
           path: '/info/bio',
-          flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+          flag: 'metaid',
         },
         { network: options?.network ?? 'testnet' }
       )
@@ -299,7 +299,7 @@ export class MvcConnector implements IMvcConnector {
           body: userData?.avatar,
           path: '/info/avatar',
           encoding: 'base64',
-          flag: options?.network === 'mainnet' ? 'metaid' : 'testid',
+          flag: 'metaid',
           contentType: 'image/jpeg;binary',
         },
         { network: options?.network ?? 'testnet' }

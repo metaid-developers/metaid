@@ -308,7 +308,7 @@ function createInscriptionTxCtxData(
   inscriptionBuilder.push(ops.OP_CHECKSIG)
   inscriptionBuilder.push(ops.OP_FALSE)
   inscriptionBuilder.push(ops.OP_IF)
-  inscriptionBuilder.push(Buffer.from('testid'))
+  inscriptionBuilder.push(Buffer.from('metaid'))
   inscriptionBuilder.push(Buffer.from(metaidData.operation))
 
   if (metaidData.operation !== 'init') {

@@ -157,7 +157,7 @@ if (!isNil(attachments) && !isEmpty(attachments)) {
         body: Buffer.from(image.data, 'base64') // Please note that this is different from the BTC version
         contentType: `${image.fileType};binary`,
         encoding: 'base64',
-        flag: 'testid',
+        flag: 'metaid',
       },
       options: {
         network: 'testnet',
@@ -178,7 +178,7 @@ if (!isNil(attachments) && !isEmpty(attachments)) {
 
 ```ts
 const { txid } = await buzzEntity.create({
-  data: { body: JSON.stringify(body), contentType: 'application/json;utf-8', flag: 'testid' },
+  data: { body: JSON.stringify(body), contentType: 'application/json;utf-8', flag: 'metaid' },
   options: {
     signMessage: 'create buzz',
     serialAction: 'finish',
@@ -442,7 +442,7 @@ type InscribeData = {
     encryption?: "0" | "1" | "2";
     version?: string;
     encoding?: BufferEncoding;
-    flag?: "metaid" | "testid";
+    flag?: "metaid" ;
 }
 await _btcConnector.inscribe({
     inscribeDataArray,
@@ -613,7 +613,7 @@ type SubMetaidData = {
     encryption?: "0" | "1" | "2";
     version?: string;
     encoding?: BufferEncoding;
-    flag?: "metaid" | "testid";
+    flag?: "metaid"  ;
 }
 
  const createRes = await buzzEntity.create({

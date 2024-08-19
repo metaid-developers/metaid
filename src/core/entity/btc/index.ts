@@ -133,6 +133,7 @@ export class BtcEntity {
         address: string
         satoshis: string
       }
+      network?: BtcNetwork
     }
   }): Promise<InscribeResultForIfBroadcasting[T]> {
     const path = this.schema.path

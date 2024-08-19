@@ -2,11 +2,12 @@ import { staticImplements } from '@/utils/index.js'
 import type { MetaIDWalletForBtc, WalletStatic } from './btcWallet.js'
 import { TxComposer, mvc } from 'meta-contract'
 import { errors } from '@/data/errors.js'
-import { broadcast as broadcastToApi, batchBroadcast as batchBroadcastApi } from '@/service/mvc.js'
-import { DERIVE_MAX_DEPTH } from '@/data/constants.js'
+// import { broadcast as broadcastToApi, batchBroadcast as batchBroadcastApi } from '@/service/mvc.js'
+// import { DERIVE_MAX_DEPTH } from '@/data/constants.js'
 
 import { isNil } from 'ramda'
 import { BtcNetwork } from '@/service/btc.js'
+// import { InscribeResult } from '@/global.js'
 
 @staticImplements<WalletStatic>()
 export class MetaletWalletForBtc implements MetaIDWalletForBtc {

@@ -1,3 +1,4 @@
+// import { InscribeResult } from '@/global'
 import { BtcNetwork } from '@/service/btc'
 import { InscriptionRequest } from '@/types'
 

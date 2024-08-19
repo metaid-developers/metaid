@@ -96,17 +96,17 @@ export async function fetchUtxos({
 
 export async function broadcast({
   rawTx,
-  publicKey,
+  // publicKey,
   network,
-  message,
+  // message,
 }: {
   rawTx: string
-  publicKey: string
   network: BtcNetwork
-  message: string
-}): Promise<{ data: any; code: number; message: string }> {
+  // publicKey: string
+  // message: string
+}): Promise<{ data: string; code: number; message: string }> {
   const url = `${BASE_METALET_TEST_URL}/tx/broadcast`
-  const signature = await window.metaidwallet.btc.signMessage(message)
+  // const signature = await window.metaidwallet.btc.signMessage(message)
 
   try {
     const data = await axios.post(
@@ -114,14 +114,14 @@ export async function broadcast({
       {
         chain: 'btc',
         net: network,
-        rawTx: rawTx,
-      },
-      {
-        headers: {
-          'X-Signature': signature,
-          'X-Public-Key': publicKey,
-        },
+        rawTx,
       }
+      // {
+      //   headers: {
+      //     'X-Signature': signature,
+      //     'X-Public-Key': publicKey,
+      //   },
+      // }
     )
     return data.data
   } catch (error) {

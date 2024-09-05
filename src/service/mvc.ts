@@ -313,11 +313,14 @@ export async function broadcast({ txHex, network }: { txHex: string; network: Bt
   txid: string
 }> {
   return await axios
-    .post(`https://${network}.mvcapi.com/tx/broadcast`, {
-      hex: txHex,
+    .post(`https://www.metalet.space/wallet-api/v3/tx/broadcast`, {
+      chain: 'mvc',
+      net: network,
+      rawTx: txHex,
     })
     .then((res) => res.data)
 }
+
 export async function batchBroadcast({ params, network }: { params: { hex: string }[]; network: BtcNetwork }): Promise<
   {
     txid: string

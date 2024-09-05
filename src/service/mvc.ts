@@ -326,5 +326,5 @@ export async function batchBroadcast({ params, network }: { params: { hex: strin
     txid: string
   }[]
 > {
-  return await axios.post(`https://${network}.mvcapi.com/tx/broadcast/batch`, params).then((res) => res.data)
+  return Promise.all(params.map((item) => broadcast({ txHex: item.hex, network })))
 }

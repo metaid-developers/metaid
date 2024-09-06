@@ -22,14 +22,13 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
       throw new Error(errors.NOT_IN_BROWSER)
     }
 
-    // get xpub from metalet
-    const xpub: string = await window.metaidwallet.getXPublicKey()
-
     const wallet = new MetaletWalletForMvc()
 
     const connectRes = await window.metaidwallet.connect()
     if (!isNil(connectRes?.address)) {
       wallet.address = connectRes.address
+      // get xpub from metalet
+      const xpub: string = await window.metaidwallet.getXPublicKey()
       wallet.xpub = xpub
       wallet.internal = window.metaidwallet
     }

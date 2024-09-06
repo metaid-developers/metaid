@@ -134,7 +134,7 @@ export class MvcConnector implements IMvcConnector {
     for (const [index, p] of payRes.entries()) {
       const txid = p.getTxId()
       console.log('mvc pin txid: ' + txid)
-      const isValid = txIDs[index] === txid
+      const isValid = txIDs[index].txid === txid
       if (isValid) {
         await notify({ txHex: p.getRawHex() })
       } else {

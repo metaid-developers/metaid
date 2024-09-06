@@ -309,19 +309,22 @@ export async function fetchRootCandidate(params: { xpub: string; parentTxId: str
   })
 }
 
-export async function broadcast({ txHex, network }: { txHex: string; network: BtcNetwork }): Promise<{
-  txid: string
-}> {
+export async function broadcast({ txHex, network }: { txHex: string; network: BtcNetwork }): Promise<string> {
   return await axios
-    .post(`https://${network}.mvcapi.com/tx/broadcast`, {
-      hex: txHex,
+    .post(`https://www.metalet.space/wallet-api/v3/tx/broadcast`, {
+      chain: 'mvc',
+      net: network,
+      rawTx: txHex,
     })
     .then((res) => res.data)
 }
-export async function batchBroadcast({ params, network }: { params: { hex: string }[]; network: BtcNetwork }): Promise<
-  {
-    txid: string
-  }[]
-> {
-  return await axios.post(`https://${network}.mvcapi.com/tx/broadcast/batch`, params).then((res) => res.data)
+
+export async function batchBroadcast({
+  params,
+  network,
+}: {
+  params: { hex: string }[]
+  network: BtcNetwork
+}): Promise<string[]> {
+  return Promise.all(params.map((item) => broadcast({ txHex: item.hex, network })))
 }

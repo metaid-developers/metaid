@@ -129,12 +129,12 @@ export class MvcConnector implements IMvcConnector {
     // for (const txComposer of payRes) {
     //   await this.connector.broadcast(txComposer)
     // }
-    await this.batchBroadcast({ txComposer: payRes, network: options.network })
+    const txIDs = await this.batchBroadcast({ txComposer: payRes, network: options.network })
 
-    for (const p of payRes) {
+    for (const [index, p] of payRes.entries()) {
       const txid = p.getTxId()
       console.log('mvc pin txid: ' + txid)
-      const isValid = !!(await fetchTxid({ txid, network: options.network }))
+      const isValid = txIDs[index] === txid
       if (isValid) {
         await notify({ txHex: p.getRawHex() })
       } else {

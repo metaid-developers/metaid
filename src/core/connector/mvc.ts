@@ -1,7 +1,7 @@
 import { useMvc, useBtc } from '@/factories/use.js'
 import { type MetaIDWalletForMvc, type Transaction } from '@/wallets/metalet/mvcWallet.js'
 import { TxComposer, mvc } from 'meta-contract'
-import { type User, fetchUser, fetchMetaid, fetchUtxos, notify, fetchTxid } from '@/service/mvc.js'
+import { type User, fetchUser, fetchMetaid, fetchUtxos, notify } from '@/service/mvc.js'
 import { DEFAULT_USERNAME, LEAST_AMOUNT_TO_CREATE_METAID } from '@/data/constants.js'
 import { checkBalance, sleep, staticImplements } from '@/utils/index.js'
 import type { EntitySchema } from '@/metaid-entities/entity.js'

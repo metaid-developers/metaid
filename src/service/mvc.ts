@@ -215,12 +215,17 @@ export async function fetchUtxos({ address, network }: { address: string; networ
     height: number
   }[]
 > {
-  const url = `https://${network}.mvcapi.com/address/${address}/utxo`
-
   try {
-    const data = await axios.get(url).then((res) => res.data)
+    const { list } = await axios
+      .get(`https://www.metalet.space/wallet-api/v4/mvc/address/utxo-list`, {
+        params: {
+          address,
+          net: network,
+        },
+      })
+      .then((res) => res.data.data)
 
-    return data
+    return list.filter((utxo) => utxo.value >= 600)
   } catch (error) {
     console.error(error)
   }
@@ -243,12 +248,12 @@ export async function fetchBiggestUtxo({ address, network }: { address: string; 
   })
 }
 
-export async function fetchTxid({ txid, network }: { txid: string; network: BtcNetwork }) {
-  const url = `https://${network}.mvcapi.com/tx/${txid}`
-  return await axios.get(url).then((res) => {
-    return res.data
-  })
-}
+// export async function fetchTxid({ txid, network }: { txid: string; network: BtcNetwork }) {
+//   const url = `https://${network}.mvcapi.com/tx/${txid}`
+//   return await axios.get(url).then((res) => {
+//     return res.data
+//   })
+// }
 
 export async function fetchUser(metaid: string): Promise<User> {
   const url = `https://api.metaid.io/aggregation/v2/app/user/getUserAllInfo/${metaid}`
@@ -309,14 +314,17 @@ export async function fetchRootCandidate(params: { xpub: string; parentTxId: str
   })
 }
 
-export async function broadcast({ txHex, network }: { txHex: string; network: BtcNetwork }): Promise<string> {
-  return await axios
+export async function broadcast({ txHex, network }: { txHex: string; network: BtcNetwork }): Promise<{ txid: string }> {
+  const txid = await axios
     .post(`https://www.metalet.space/wallet-api/v3/tx/broadcast`, {
       chain: 'mvc',
       net: network,
       rawTx: txHex,
     })
-    .then((res) => res.data.data)
+    .then((res) => res.data)
+
+  return { txid }
+
 }
 
 export async function batchBroadcast({
@@ -325,9 +333,9 @@ export async function batchBroadcast({
 }: {
   params: { hex: string }[]
   network: BtcNetwork
-}): Promise<string[]> {
-  const results: string[] = []
-  
+}): Promise<{ txid: string }[]> {
+  const results: { txid: string }[] = []
+
   for (const item of params) {
     const result = await broadcast({ txHex: item.hex, network })
     results.push(result)

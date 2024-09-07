@@ -200,7 +200,7 @@
             // })
             // console.log({ res })
 
-            await toRaw(Buzz.value).create({ data: { body: content.value + 'dd' }, options: { network: 'testnet' } })
+            await toRaw(Buzz.value).create({ data: { body: content.value }, options: { network: 'testnet' } })
           }
           const createBuzzPictureForMVC = async () => {
             let attachMetafileUri = [
@@ -212,8 +212,8 @@
             for (const a of attachMetafileUri) {
               const { transactions: txs } = await toRaw(File.value).create({
                 data: {
-                  // body: Buffer.from(a, 'hex').toString('base64'),
-                  body: Buffer.from(a, 'base64'),
+                  // body: Buffer.from(a, 'base64'),
+                  body: a,
                   contentType: `image/jpeg;binary`,
                   encoding: 'base64',
                   flag: 'metaid',
@@ -239,8 +239,8 @@
                 transactions: fileTransactions,
               },
             })
-            // console.log('attachMetafileUri', attachMetafileUri)
-            // await toRaw(Buzz.value).create({ content: content.value, attachments: attachMetafileUri })
+            console.log('attachMetafileUri', attachMetafileUri)
+            await toRaw(Buzz.value).create({ content: content.value, attachments: attachMetafileUri })
           }
 
           const getBuzzList = async () => {
@@ -261,33 +261,14 @@
             await Like.create({ likeTo: txid, isLike: '1' })
           }
           const debug = async () => {
-            const txhex =
-              '01000000000101431016ade3f7be33ea56831f60e0725efcdddc873d1851488b73e38f5f12b4da0000000000f5ffffff0122020000000000001600141b8cdc41f30b26f50f67e0861a0c87171764a14c034012765648c01c1e0690795c4026b8d016b440a7a0d14c332952be776e0e2caca91c672d45f46c4805ce70835f4592a3f30423290287da34886b11ed2817466d7cfd500120db80413b6ebeac3c1efbb8df939a874dd50b22ef57685f12fafca573f3e39797ac00630674657374696406637265617465172f70726f746f636f6c732f73696d706c6562757a7a2f31000131106170706c69636174696f6e2f6a736f6e4cef7b22636f6e74656e74223a22426974636f696e20697320616e20696e6e6f766174697665207061796d656e74206e6574776f726b20616e642061206e6577206b696e64206f66206d6f6e65792e2046696e6420616c6c20796f75206e65656420746f206b6e6f7720616e64206765742073746172746564207769746820426974636f696e206f6e20626974636f696e2e6f72672e20416c736f20426974636f696e20697320646174612e222c22636f6e74656e7454797065223a22746578742f706c61696e222c2263726561746554696d65223a313730353534393831393932392c2271756f74655478223a22227d6821c1db80413b6ebeac3c1efbb8df939a874dd50b22ef57685f12fafca573f3e3979700000000'
-            const psbt = Transaction.fromHex(txhex)
-            console.log(psbt)
+            const imgHex =
+              'efbfbd504e470d0a1a0a0000000d49484452000000300000003008060000005702efbfbdefbfbd000000017352474200efbfbdefbfbd1cefbfbd0000000473424954080808087c0864efbfbd000005714944415468efbfbdefbfbdefbfbd4f6f134718c69f7766efbfbd383809efbfbd1cefbfbd77efbfbd10543515c2b5efbfbd2227efbfbdefbfbdefbfbd17efbfbd03efbfbd25efbfbd5024c2a9274210efbfbd7e09c4a155d5aa1710efbfbdefbfbd02efbfbdefbfbd7f56efbfbd01efbfbd1220efbfbdefbfbd6e22644862efbfbd78efbfbdefbfbdefbfbdefbfbdefbfbd26efbfbdefbfbdefbfbd5eefbfbdefbfbdefbfbdefbfbd64efbfbdefbfbd3befbfbd3cefbfbdefbfbdefbfbdd7b34b6803efbfbd78efbfbd2befbfbd3c2eefbfbdefbfbd29efbfbd7aefbfbd101e66efbfbd22400300062c22efbfbd114a6d0b21efbfbdefbfbd526fefbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbd6b53efbfbdefbfbdefbfbdefbfbd7befbfbd160a11efbfbd54efbfbdefbfbdefbfbdefbfbdefbfbd545f44efbfbd0cefbfbd5742efbfbd7c5e6f2eefbfbd4e6fefbfbdefbfbdefbfbd6903efbfbd64efbfbd58093849efbfbdefbfbdefbfbd083befbfbd01efbfbdefbfbdefbfbd6eefbfbdefbfbdefbfbdc78f3f34136bdb80efbfbdefbfbddabb62efbfbd04efbfbdefbfbd280057efbfbd2aefbfbd61efbfbdcbb5efbfbdefbfbdefbfbdefbfbd2aefbfbd4e5b76026c1948efbfbd527defbfbd5229efbfbdefbfbdefbfbdefbfbde9b38760efbfbd70efbfbddd99efbfbdefbfbdefbfbdefbfbd466d65efbfbd06efbfbd783c5606efbfbd30d1b1efbfbdefbfbd6b0c1375594a45efbfbd7eefbfbdefbfbd6118efbfbdefbfbd38efbfbdefbfbdefbfbdefbfbdefbfbd5129efbfbd2930efbfbd65efbfbd37efbfbd14efbfbd16efbfbd47efbfbdefbfbdefbfbd5c2e5fefbfbd51efbfbdefbfbdefbfbdefbfbdefbfbdefbfbd52efbfbdefbfbdefbfbd597446efbfbd0defbfbd4900efbfbdefbfbd58efbfbdefbfbdefbfbdefbfbd06efbfbdefbfbd784c4a79efbfbd48efbfbdefbfbd0309225f6070efbfbd586b3a7d6220efbfbd4aefbfbdefbfbdefbfbd3347346d6aefbfbd4c24efbfbd6f6468683defbfbdefbfbdefbfbdefbfbdefbfbdefbfbd37c2baefbfbd6befbfbd5229efbfbdefbfbd2defbfbd4e70efbfbd4aefbfbdefbfbdefbfbdefbfbdefbfbd0676efbfbdefbfbd77efbfbdefbfbdefbfbdcfb554efbfbdefbfbd22efbfbd7b572cefbfbdefbfbd5befbfbd6b20efbfbd4c1eefbfbd6c52efbfbd727defbfbdc6b93befbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbd7eefbfbdefbfbd3a1b742a6a6aefbfbd6cefbfbdefbfbd1f7fefbfbd7aefbfbdefbfbdefbfbd5befbfbd676fefbfbd6bd49e4d7334efbfbd4cefbfbd2eefbfbdefbfbd064aefbfbd49d8983aefbfbd44e2bca669de9eefbfbdefbfbdefbfbdefbfbdefbfbdefbfbd57efbfbdefbfbdefbfbdefbfbd3a1befbfbdefbfbd3c7d756060e0b4a669efbfbd442271efbfbd46efbfbdefbfbdefbfbd1540c580efbfbdefbfbd1e62efbfbddab9efbfbdefbfbdefbfbdefbfbd52efbfbdefbfbdefbfbdefbfbd09efbfbd6aefbfbd2aefbfbdefbfbdefbfbd04efbfbd65efbfbdefbfbddb86efbfbd5862efbfbdefbfbdefbfbdefbfbd012aefbfbd50efbfbdefbfbd3f24efbfbd6defbfbd585defbfbdefbfbdefbfbdefbfbdefbfbde484a6695e00efbfbd34efbfbd3b393139efbfbdefbfbdefbfbd32efbfbdefbfbdefbfbdefbfbd567a5c47efbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbd41efbfbdefbfbd6059efbfbd6befbfbd5c5e0240381c3e05efbfbd63efbfbdefbfbdefbfbdefbfbd6f0aefbfbd2b2bf3ad9aa8277eefbfbdefbfbdcc95efbfbdefbfbd7befbfbdefbfbd40c584efbfbd585d5defbfbdefbfbd78efbfbd2befbfbd1c4313efbfbd69efbfbd26efbfbd251e00efbfbdefbfbd2befbfbdefbfbdefbfbd642412efbfbd33106926efbfbd1513efbfbd145fefbfbd20efbfbdefbfbd321aefbfbdefbfbd28efbfbdefbfbdefbfbd0e6cefbfbdefbfbdefbfbd7800efbfbd14efbfbd2443efbfbdefbfbd4927efbfbd722313efbfbdefbfbd233defbfbd100f00602eefbfbd37efbfbdefbfbdefbfbd60efbfbd3aefbfbd08efbfbd4719efbfbdefbfbdefbfbdefbfbd2d6befbfbd7800202aefbfbd60383c460752efbfbd56efbfbd7727efbfbdefbfbdefbfbd36efbfbd07efbfbdefbfbdefbfbdefbfbd7078efbfbd1defbfbd01efbfbd4d5469efbfbd78efbfbdefbfbd7eefbfbd6fefbfbdefbfbd1d21efbfbdefbfbdefbfbd683befbfbd1050efbfbd7750efbfbdefbfbd1defbfbd110c583214efbfbd7c01efbfbdefbfbdefbfbdefbfbd7a3f62cbb20a4ed28eefbfbd20efbfbdefbfbdefbfbdefbfbd4261efbfbd270eefbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbdefbfbd69efbfbd540fefbfbdefbfbd29efbfbdefbfbdefbfbd40efbfbd1b5923efbfbd7373efbfbd0cefbfbdefbfbdefbfbd614821efbfbd652814d29828efbfbd09efbfbdd5b2efbfbdefbfbd605eefbfbdefbfbd4040092947efbfbdefbfbd3969efbfbdefbfbd41efbfbd4d10112befbfbd7a210defbfbd30efbfbdefbfbd481036efbfbdefbfbd56efbfbd77efbfbd04efbfbdefbfbdefbfbd4cefbfbdefbfbd04efbfbd402cefbfbd11efbfbdefbfbdefbfbdefbfbdefbfbd6d4249efbfbdefbfbdefbfbdefbfbdefbfbd0500efbfbdefbfbdefbfbd1c03efbfbd4eefbfbd2f7d77efbfbdefbfbdefbfbdefbfbd666eefbfbdefbfbd31736defbfbd4a3557023eefbfbd4b172f5cefbfbd6027efbfbd01efbfbdefbfbdefbfbdefbfbdefbfbdefbfbd06efbfbd4eefbfbdefbfbdefbfbd286b27efbfbdefbfbdefbfbdefbfbdefbfbdefbfbd74efbfbd1eefbfbd32efbfbdefbfbdefbfbdefbfbdefbfbd540400efbfbd285b7d20efbfbdefbfbd03efbfbdefbfbdefbfbd00efbfbd46efbfbdefbfbd4cefbfbdefbfbd6559efbfbd7c3eefbfbdefbfbd34efbfbdefbfbdefbfbdefbfbdefbfbdefbfbd5aefbfbd2cefbfbdefbfbdefbfbd646eefbfbd08332b5a011c587912efbfbdd4976cefbfbd5fefbfbd2aefbfbd73402ed78befbfbdefbfbdefbfbd1fefbfbdefbfbdefbfbd72efbfbdefbfbdefbfbdefbfbd57efbfbdefbfbdefbfbd43efbfbdefbfbd42306fefbfbd7777efbfbdefbfbd5befbfbdefbfbd70efbfbdefbfbdefbfbdefbfbd6a7878386f29153958efbfbd2fefbfbdefbfbd72efbfbd1f3d78f0a0b8b7efbfbd13efbfbdefbfbd6c7627efbfbdefbfbdefbfbd084d0befbfbdefbfbd27efbfbdefbfbdefbfbdefbfbd506cefbfbdcf9e3c79efbfbd7eefbfbdefbfbdefbfbd281befbfbdefbfbdefbfbdefbfbd46efbfbd0218efbfbdefbfbd47efbfbded8088efbfbd2cefbfbdefbfbdc5a74fefbfbdd4aaefbfbd3b4defbfbd72efbfbdefbfbd3f162b0b22efbfbd51efbfbd091242efbfbdefbfbd78efbfbdefbfbdefbfbdefbfbd52efbfbd36efbfbdefbfbdefbfbdefbfbd5c2e1f181c2cefbfbd10efbfbd466d3befbfbdc9a6efbfbdefbfbdefbfbdefbfbd576928efbfbd30efbfbdefbfbdefbfbdefbfbdefbfbd75552e0f305157efbfbdefbfbdefbfbd47306f74efbfbddd8f6aefbfbdefbfbdefbfbdefbfbd1aefbfbd6c36efbfbd333636efbfbdefbfbd51efbfbd0cefbfbdefbfbddb8d6b01efbfbd5cefbfbd3fefbfbd7b7a160fefbfbd36efbfbdefbfbdefbfbdefbfbd6a70efbfbdefbfbdefbfbdefbfbd1eefbfbd38efbfbdefbfbd6defbfbd0626efbfbdefbfbdefbfbdefbfbdefbfbd48efbfbd0000000049454e44efbfbd4260efbfbd'
+            const base64ed = Buffer.from(Buffer.from(imgHex, 'hex').toString('utf8'), 'utf8').toString('hex')
+            const original64 =
+              'iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAARzQklUCAgICHwIZIgAAAVxSURBVGiB5ZpPbxNHGMafd2btODgJiRz/d5MQVDUVwrWwIieHiO0X4APwJeBQJMKpJ0IQl34JxKFV1aoXEJWMAoeIf1bCAdQSIJGdbiJkSGKceNfz9oCdJsGO116btOrvZM/MO/s8s+OZ17NLaAPxeNwrpTwuhPAppXqUEB5m7iJAAwAGLCLaEUptCyG2lFJvy+Xy+4WFhYLTa1Orgbque94WChGhVISA48zcVF9ExAy8V0LkfF5vLp1Ob7eio2kDyWTyWAk4SczR6gg7hQGLibJu4OXjx48/NBNr24Cu69q7YvEEm+YoAFfTKu1hksu11N/d/SqdTlt2AmwZSKVSfaVSKaGI+pzps4dg3nC73Zn5+fmNRm1lowbxeDxWBs4w0bH2yGsME3VZSkWCfv+OYRiHmjjUwOnx8VEp5Skwt2WuN4kUmhbwR6PltVwuX7dRvYrT4+OjUqmvmVl0Rp8NmEkAg/5YrK6Jmgbi8XhMSnnqSMX/AwkiX2BwsFhrOn1iIJVK9ZWBM0c0bWrDTCSEb2RoaD2bze7srdo3wrqua6VSKYHOLZNOcJVKpYSu6/sGdp+Bd8Xiic+1VLaCIup7Vyye2Fu2ayCZTB6rbFKHcn32xrk7t+/e+vWX336YmjobdCpqaups8Kcff7565/bdW9dnb5xr1J5NczSZTO4u6bsGSsBJ2Jg6iUTivKZp3p6entHpy9NXnZiYmjobnL48fXVgYOC0pmneRCJx3kaYq6IVQMWAruseYo7auejm5uZS9bPH4wm0aqIq3uPxBKpl29vbhp1YYo7quu4BKqtQr98/JJhtiVhd/evZ5MTkhKZpXgDQNM07OTE5sbyyMr+8/MZWelxH/Nrs9dnv7fRBgPhgWdtruVxeAkA4HD4FwGPn4svLbwrLKyvzrZqoJ37m2syVubl7tu5AxYTLWF1dlvF43CukHEMTmWmrJtolHgCIqCvg9+dkJBLxMxBpJrgVE+0UX/UgifIyGo2OKKC/hQ5sm+iAeACAFKIkQ6HQSSepciMTw8MjPZ0QDwBgLtM3yeS3YPY66gj1Rxn4uNzuLWuLeAAgKshgODxGB1KKVqh3J6qfgTaLB8CAkKFweKwdnQG1TVRpt3jg437wb8j3HSGD4fBoO6YQUPt3UKWVHbsRDFgyFIl8AcDttLN6P2LLsgpO0o7DIKKijIRCYacnDoet8/fv3//dae5UD8G8KaPR6ECrG1kj8XNz9wynudNhSCHWZSgU0pgo3Anx1bKOmWBekoFAQAkpR9DkOWmz6UG7TRARK8t6IQ3DMIORSBA20+lWxHfEBNH7hUzmpQSAQCymEbO/k+LbbUJJubSWy+UFAPi83hwDtk6DL3136YrT3GZu7p4xc23mSjVXAj7mSxcvXLxgJ54By+f15oDKBpZOp7eZKGsn2OPx7P71dJIe1DLR29vb8FQEAJgoW30gsrsDu4GXAMxGwZlM5qZlWYV8Pr/oNLepmtja2lqyLKuQyWRu2ggzK1oBHFh5EqnUl2yaX7Uq6HNALteLzPz8H9Xv+3Kg/u7uV4K54UOFo0Iwb/R3d7/aW7bvcPf169dqeHg4bykVOVj3L8DscrsfPXjwoLi38BOR2Wx2J+j37whNC6DJJ4+dgoRQbJrPnjx5sn6wruYoG4ax4Y9GywIYhINHse2AiLgsxPPFp0/f1KqvO03Wcrm8PxYrCyLfUd0JEkKVhXi++PDhUr02h87ztVwuHxgcLJIQvkZtO4DJpvms3shXaSjKMIyNkaGhdVUuDzBRV/v01Ucwb3S53Y9qzfmD2BrVbDa7MzY2lt1RqgyljtuNawGTXK4/+3t6Fg+uNvX4/7xqcJD/7MsetTjK123+Bib+qa2rskiUAAAAAElFTkSuQmCC'
+            console.log(base64ed, Buffer.from(original64, 'base64').toString('hex'))
           }
-          const debug2 = async () => {
-            const psbt = new Psbt()
-            psbt.addInput({
-              hash: '7d067b4a697a09d2c3cff7d4d9506c9955e93bff41bf82d439da7d030382bc3e',
-              index: 0,
-              nonWitnessUtxo: Buffer.from(
-                '0200000001f9f34e95b9d5c8abcd20fc5bd4a825d1517be62f0f775e5f36da944d9' +
-                  '452e550000000006b483045022100c86e9a111afc90f64b4904bd609e9eaed80d48' +
-                  'ca17c162b1aca0a788ac3526f002207bb79b60d4fc6526329bf18a77135dc566020' +
-                  '9e761da46e1c2f1152ec013215801210211755115eabf846720f5cb18f248666fec' +
-                  '631e5e1e66009ce3710ceea5b1ad13ffffffff01905f0100000000001976a9148bb' +
-                  'c95d2709c71607c60ee3f097c1217482f518d88ac00000000',
-                'hex'
-              ),
-              sighashType: 1,
-            })
-            psbt.addOutput({
-              address: '1KRMKfeZcmosxALVYESdPNez1AP1mEtywp',
-              value: 80000,
-            })
-            console.log('psbt', psbt)
-          }
+
           const createMetaidForBTC = async () => {
             const _wallet = await MetaletWalletForBtc.create()
             const connector = await btcConnect(_wallet)

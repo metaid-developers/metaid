@@ -22,14 +22,13 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
       throw new Error(errors.NOT_IN_BROWSER)
     }
 
-    // get xpub from metalet
-    const xpub: string = await window.metaidwallet.getXPublicKey()
-
     const wallet = new MetaletWalletForMvc()
 
     const connectRes = await window.metaidwallet.connect()
     if (!isNil(connectRes?.address)) {
       wallet.address = connectRes.address
+      // get xpub from metalet
+      const xpub: string = await window.metaidwallet.getXPublicKey()
       wallet.xpub = xpub
       wallet.internal = window.metaidwallet
     }
@@ -198,7 +197,11 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
   }): Promise<{ txid: string }> {
     // broadcast locally first
     const txHex = txComposer.getTx().toString()
-    return await broadcastToApi({ txHex, network })
+
+    const txid = await broadcastToApi({ txHex, network })
+    console.log('txid', txid)
+
+    return { txid }
   }
 
   public async batchBroadcast({
@@ -208,10 +211,15 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
     txComposer: TxComposer[]
     network: BtcNetwork
   }): Promise<{ txid: string }[]> {
-    // broadcast locally first
-    const hexs = txComposer.map((d) => {
-      return { hex: d.getTx().toString() }
-    })
-    return await batchBroadcastApi({ params: hexs, network })
+    let res: { txid: string }[] = []
+    for (let i = 0; i < txComposer.length; i++) {
+      const broadcastRes = await this.broadcast({
+        txComposer: txComposer[i],
+        network,
+      })
+      res.push(broadcastRes)
+    }
+
+    return res
   }
 }

@@ -89,8 +89,6 @@ export class MvcConnector implements IMvcConnector {
       network: BtcNetwork
     }
   ): Promise<CreatePinResult> {
-    console.log('metaidData', metaidData)
-
     if (!this.isConnected) {
       throw new Error(errors.NOT_CONNECTED)
     }
@@ -102,7 +100,6 @@ export class MvcConnector implements IMvcConnector {
 
     const pinTxComposer = new TxComposer()
 
-    console.log('wallet address', this.wallet.address)
     pinTxComposer.appendP2PKHOutput({
       address: new mvc.Address(this.wallet.address, options.network),
       satoshis: 546,
@@ -125,7 +122,7 @@ export class MvcConnector implements IMvcConnector {
     const payRes = await this.pay({
       transactions,
     })
-    console.log('payRes', payRes)
+
     // for (const txComposer of payRes) {
     //   await this.connector.broadcast(txComposer)
     // }
@@ -133,7 +130,7 @@ export class MvcConnector implements IMvcConnector {
 
     for (const [index, p] of payRes.entries()) {
       const txid = p.getTxId()
-      console.log('mvc pin txid: ' + txid)
+
       const isValid = txIDs[index].txid === txid
       if (isValid) {
         await notify({ txHex: p.getRawHex() })
@@ -200,8 +197,6 @@ export class MvcConnector implements IMvcConnector {
       }
     }
     if (userData?.bio !== this.user?.bio && !isNil(userData?.bio) && !isEmpty(userData?.bio)) {
-      console.log('run in bio')
-
       if (this.user?.bioId === '') {
         bioRes = await this.createPin(
           {

@@ -321,8 +321,10 @@ export async function broadcast({ txHex, network }: { txHex: string; network: Bt
       net: network,
       rawTx: txHex,
     })
-    .then((res) => res.data.data)
+    .then((res) => res.data)
+
   return { txid }
+
 }
 
 export async function batchBroadcast({

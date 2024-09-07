@@ -40,6 +40,7 @@ export interface MetaIDWalletForMvc {
     txComposer: TxComposer | TxComposer[]
     network: BtcNetwork
   }): Promise<{ txid: string } | { txid: string }[]>
+
   batchBroadcast({
     txComposer,
     network,

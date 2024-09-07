@@ -34,7 +34,6 @@ export function buildOpReturnV2(
       : Buffer.isBuffer(metaidData.body)
         ? metaidData.body
         : Buffer.from(metaidData.body, metaidData?.encoding ?? 'utf-8')
-    console.log('final body', body)
     res2.push(body)
     // const maxChunkSize = 520
     // const bodySize = (body as Buffer).length

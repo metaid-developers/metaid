@@ -215,10 +215,15 @@ export async function fetchUtxos({ address, network }: { address: string; networ
     height: number
   }[]
 > {
-  const url = `https://www.metalet.space/wallet-api/v4/mvc/address/utxo-list`
-
   try {
-    const { list } = await axios.get(url).then((res) => res.data)
+    const { list } = await axios
+      .get(`https://www.metalet.space/wallet-api/v4/mvc/address/utxo-list`, {
+        params: {
+          address,
+          net: network,
+        },
+      })
+      .then((res) => res.data.data)
 
     return list.filter((utxo) => utxo.value >= 600)
   } catch (error) {

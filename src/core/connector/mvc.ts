@@ -280,7 +280,7 @@ export class MvcConnector implements IMvcConnector {
       bioRes = await this.createPin(
         {
           operation: 'create',
-          body: userData.name,
+          body: userData.bio,
           path: '/info/bio',
           flag: 'metaid',
         },

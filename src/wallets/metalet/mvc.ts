@@ -199,6 +199,7 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
     const txHex = txComposer.getTx().toString()
 
     const txid = await broadcastToApi({ txHex, network })
+    console.log('txid', txid)
 
     return { txid }
   }
@@ -210,17 +211,14 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
     txComposer: TxComposer[]
     network: BtcNetwork
   }): Promise<{ txid: string }[]> {
-    // broadcast locally first
-    const hexs = txComposer.map((d) => {
-      return { hex: d.getTx().toString() }
-    })
-
-    const txids = await batchBroadcastApi({ params: hexs, network })
-    const res = txids.map((id) => {
-      return {
-        txid: id,
-      }
-    })
+    let res: { txid: string }[] = []
+    for (let i = 0; i < txComposer.length; i++) {
+      const broadcastRes = await this.broadcast({
+        txComposer: txComposer[i],
+        network,
+      })
+      res.push(broadcastRes)
+    }
 
     return res
   }

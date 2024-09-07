@@ -209,25 +209,25 @@
             console.log('file', 'start')
             let fileTransactions = []
             let finalAttachMetafileUri = []
-            // for (const a of attachMetafileUri) {
-            //   const { transactions: txs } = await toRaw(File.value).create({
-            //     data: {
-            //       // body: Buffer.from(a, 'base64'),
-            //       body: a,
-            //       contentType: `image/jpeg;binary`,
-            //       encoding: 'base64',
-            //       flag: 'metaid',
-            //     },
-            //     options: {
-            //       network: 'testnet',
-            //       signMessage: 'upload image file',
-            //       serialAction: 'combo',
-            //       transactions: fileTransactions,
-            //     },
-            //   })
-            //   finalAttachMetafileUri.push('metafile://' + txs[txs.length - 1].txComposer.getTxId() + 'i0')
-            //   fileTransactions = txs
-            // }
+            for (const a of attachMetafileUri) {
+              const { transactions: txs } = await toRaw(File.value).create({
+                data: {
+                  // body: Buffer.from(a, 'base64'),
+                  body: a,
+                  contentType: `image/jpeg;binary`,
+                  encoding: 'base64',
+                  flag: 'metaid',
+                },
+                options: {
+                  network: 'testnet',
+                  signMessage: 'upload image file',
+                  serialAction: 'combo',
+                  transactions: fileTransactions,
+                },
+              })
+              finalAttachMetafileUri.push('metafile://' + txs[txs.length - 1].txComposer.getTxId() + 'i0')
+              fileTransactions = txs
+            }
 
             const finalBody = { content: 'Hello World image-with-png', attachments: finalAttachMetafileUri }
             await toRaw(Buzz.value).create({

@@ -285,7 +285,7 @@
 
             const res = await mvcConnector
               .createUserInfo({
-                userData: { name: 'sea-change', avatar: Buffer.from(avatarUri, 'base64'), bio: 'hello world' },
+                userData: { name: 'lontar', avatar: Buffer.from(avatarUri, 'base64'), bio: 'hello world' },
               })
               .catch((error) => console.log('error mvc create user', error))
             console.log('create mvc metaid-user res', res)

@@ -198,7 +198,7 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
     // broadcast locally first
     const txHex = txComposer.getTx().toString()
 
-    const txid = await broadcastToApi({ txHex, network })
+    const { txid } = await broadcastToApi({ txHex, network })
     console.log('txid', txid)
 
     return { txid }

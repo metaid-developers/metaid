@@ -326,5 +326,12 @@ export async function batchBroadcast({
   params: { hex: string }[]
   network: BtcNetwork
 }): Promise<string[]> {
-  return Promise.all(params.map((item) => broadcast({ txHex: item.hex, network })))
+  const results: string[] = []
+  
+  for (const item of params) {
+    const result = await broadcast({ txHex: item.hex, network })
+    results.push(result)
+  }
+
+  return results
 }

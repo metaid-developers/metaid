@@ -46,7 +46,7 @@ export interface MetaIDWalletForMvc {
   }: {
     txComposer: TxComposer[]
     network: BtcNetwork
-  }): Promise<string[]>
+  }): Promise<{ txid: string }[]>
 
   // encrypt(message: string, publicKey: string): Promise<string>;
 }

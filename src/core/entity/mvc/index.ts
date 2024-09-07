@@ -8,7 +8,6 @@ import {
   fetchUtxos,
   notify,
   type User,
-  fetchTxid,
   fetchOneBuzz,
 } from '@/service/mvc.js'
 import { connected } from '@/decorators/connected.js'

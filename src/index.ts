@@ -15,6 +15,7 @@ import type { MetaIDWalletForBtc as IMetaletWalletForBtc } from '@/wallets/metal
 import { type Transaction as MvcTransaction } from '@/wallets/metalet/mvcWallet.js'
 
 import type { IBtcConnector } from '@/core/connector/btcConnector.js'
+import type { IMvcConnector } from '@/core/connector/mvcConnector.js'
 import type { SubMetaidData, InscriptionRequest } from '@/types/index.js'
 import { loadBtc, loadMvc } from './factories/load.js'
 
@@ -33,5 +34,12 @@ export {
   loadBtc,
   loadMvc,
 }
-export type { EntitySchema, SubMetaidData as CreateOptions, IMetaletWalletForBtc, IBtcConnector, InscriptionRequest }
+export type {
+  EntitySchema,
+  SubMetaidData as CreateOptions,
+  IMetaletWalletForBtc,
+  IBtcConnector,
+  InscriptionRequest,
+  IMvcConnector,
+}
 export { IBtcEntity }

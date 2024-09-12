@@ -102,7 +102,7 @@ export class MvcConnector implements IMvcConnector {
 
     pinTxComposer.appendP2PKHOutput({
       address: new mvc.Address(this.wallet.address, options.network),
-      satoshis: 546,
+      satoshis: 1,
     })
 
     const metaidOpreturn = buildOpReturnV2(metaidData, { network: options?.network ?? 'testnet' })

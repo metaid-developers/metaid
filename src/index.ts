@@ -11,6 +11,7 @@ import { MetaletWalletForBtc } from './wallets/metalet/btc.js'
 
 import type { EntitySchema } from '@/metaid-entities/entity.js'
 import { BtcEntity as IBtcEntity } from './core/entity/btc/index.js'
+import { MvcEntity as IMvcEntity } from '@/core/entity/mvc/index.js'
 import type { MetaIDWalletForBtc as IMetaletWalletForBtc } from '@/wallets/metalet/btcWallet.js'
 import { type Transaction as MvcTransaction } from '@/wallets/metalet/mvcWallet.js'
 
@@ -42,4 +43,4 @@ export type {
   InscriptionRequest,
   IMvcConnector,
 }
-export { IBtcEntity }
+export { IBtcEntity, IMvcEntity }

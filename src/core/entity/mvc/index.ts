@@ -72,7 +72,7 @@ export class MvcEntity {
   }: {
     data: SubMetaidData
     options: {
-      network: BtcNetwork
+      network?: BtcNetwork
       signMessage?: string
       serialAction?: 'combo' | 'finish'
       transactions?: Transaction[]
@@ -80,7 +80,8 @@ export class MvcEntity {
   }) {
     const path = this.schema.path
     // console.log('pin path', path)
-    const res = await this.connector.createPin({ ...data, operation: 'create', path }, options)
+    const _options = { ...options, network: options.network ?? 'testnet' }
+    const res = await this.connector.createPin({ ...data, operation: 'create', path }, _options)
     console.log('res', res)
 
     return res

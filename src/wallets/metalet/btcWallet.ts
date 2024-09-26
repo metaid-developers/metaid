@@ -20,7 +20,7 @@ export type MetaIDWalletForBtc = {
   pub: string
   network: BtcNetwork
   hasAddress(): boolean
-  internal: Window['metaidwallet']
+  internal?: Window['metaidwallet']
   getAddress({ path }: { path?: string }): Promise<string>
   getPublicKey(path?: string): Promise<string>
   getBalance(): Promise<{ address: string; confirmed: number; unconfirmed: number }>

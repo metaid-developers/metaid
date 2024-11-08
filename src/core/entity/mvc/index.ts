@@ -17,7 +17,7 @@ import { UTXO_DUST } from '@/data/constants.js'
 import { type Transaction } from '@/wallets/metalet/mvcWallet.js'
 import type { EntitySchema } from '@/metaid-entities/entity.js'
 import type { MvcConnector } from '../../connector/mvc.js'
-import { SubMetaidData } from '@/types/index.js'
+import { MetaidData, SubMetaidData } from '@/types/index.js'
 import { BtcNetwork } from '@/service/btc.js'
 
 type Root = {
@@ -70,7 +70,7 @@ export class MvcEntity {
     data,
     options,
   }: {
-    data: SubMetaidData
+    data: MetaidData
     options: {
       network?: BtcNetwork
       signMessage?: string
@@ -78,10 +78,11 @@ export class MvcEntity {
       transactions?: Transaction[]
     }
   }) {
-    const path = this.schema.path
+    const path = data.path ?? this.schema.path
+    const operation = data.operation ?? 'create'
     // console.log('pin path', path)
     const _options = { ...options, network: options.network ?? 'testnet' }
-    const res = await this.connector.createPin({ ...data, operation: 'create', path }, _options)
+    const res = await this.connector.createPin({ ...data, operation, path }, _options)
     console.log('res', res)
 
     return res

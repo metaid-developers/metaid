@@ -1,33 +1,13 @@
 import { connected } from '@/decorators/connected.js'
 import type { EntitySchema } from '@/metaid-entities/entity.js'
-import {
-  inscribePsbt,
-  type InscribePsbts,
-  type Operation,
-  type PrevOutput,
-} from '../../../utils/btc-inscribe/inscribePsbt.js'
-import { Psbt } from '../../../utils/btc-inscribe/bitcoinjs-lib/psbt.js'
+import { type Operation } from '../../../utils/btc-inscribe/inscribePsbt.js'
 
 import * as bitcoin from '../../../utils/btc-inscribe/bitcoinjs-lib/index.js'
-import {
-  BtcNetwork,
-  fetchUtxos,
-  fetchAllPinByPath,
-  getPinDetailByPid,
-  getPinListByAddress,
-  Pin,
-} from '@/service/btc.js'
-import { errors } from '@/data/errors.js'
+import { BtcNetwork, fetchAllPinByPath, getPinDetailByPid, getPinListByAddress, Pin } from '@/service/btc.js'
 import type { BtcConnector, InscribeResultForIfBroadcasting } from '@/core/connector/btc.js'
 import { isNil } from 'ramda'
 
-import BIP32Factory, { type BIP32Interface } from 'bip32'
-import * as bip39 from 'bip39'
-// import * as ecc from 'tiny-secp256k1'
-import { taprootFinalInput, taprootSignInput } from '../../../utils/btc-inscribe/btcUtils.js'
 import { SubMetaidData, MetaidData } from '@/types/index.js'
-
-// const bip32 = BIP32Factory(ecc)
 
 export type InscribeData = Omit<MetaidData, 'revealAddr'>
 
@@ -127,6 +107,7 @@ export class BtcEntity {
   }: {
     dataArray: SubMetaidData[]
     options: {
+      path?: string
       noBroadcast: T
       feeRate?: number
       service?: {
@@ -136,10 +117,10 @@ export class BtcEntity {
       network?: BtcNetwork
     }
   }): Promise<InscribeResultForIfBroadcasting[T]> {
-    const path = this.schema.path
+    const path = options?.path ?? this.schema.path
     // console.log('pin path', path)
     const res = await this.connector.inscribe({
-      inscribeDataArray: dataArray.map((d) => ({ ...d, operation: 'create', path })),
+      inscribeDataArray: dataArray.map((d) => ({ ...d, operation: 'create', path: d?.path ?? path })),
       options,
     })
 

@@ -152,104 +152,66 @@ export class MvcConnector implements IMvcConnector {
       name?: string
       bio?: string
       avatar?: string
+      background?: string
     }
     options: { feeRate?: number; network?: BtcNetwork }
   }): Promise<{
     nameRes: CreatePinResult | undefined
     bioRes: CreatePinResult | undefined
     avatarRes: CreatePinResult | undefined
+    backgroundRes: CreatePinResult | undefined
   }> {
-    let nameRes: CreatePinResult | undefined
-    let bioRes: CreatePinResult | undefined
-    let avatarRes: CreatePinResult | undefined
-
-    // {
-    //   operation: 'create',
-    //   body: body.name,
-    //   path: '/info/name',
-    //   flag: 'metaid',
-    // },
-    // { network: options?.network ?? 'testnet' }
-
-    // path 传@pinId
-    if (userData?.name !== this.user?.name && !isNil(userData?.name) && !isEmpty(userData?.name)) {
-      if (this.user?.nameId === '') {
-        nameRes = await this.createPin(
-          {
-            operation: 'create',
-            body: userData?.name,
-            path: `/info/name`,
-            flag: 'metaid',
-          },
-          { network: options?.network ?? 'testnet' }
-        )
-      } else {
-        nameRes = await this.createPin(
-          {
-            operation: 'modify',
-            body: userData?.name,
-            path: `@${this?.user?.nameId ?? ''}`,
-            flag: 'metaid',
-          },
-
-          { network: options?.network ?? 'testnet' }
-        )
-      }
-    }
-    if (userData?.bio !== this.user?.bio && !isNil(userData?.bio) && !isEmpty(userData?.bio)) {
-      if (this.user?.bioId === '') {
-        bioRes = await this.createPin(
-          {
-            operation: 'create',
-            body: userData?.bio,
-            path: `/info/bio`,
-            flag: 'metaid',
-          },
-
-          { network: options?.network ?? 'testnet' }
-        )
-      } else {
-        bioRes = await this.createPin(
-          {
-            operation: 'modify',
-            body: userData?.bio,
-            path: `@${this?.user?.bioId ?? ''}`,
-            flag: 'metaid',
-          },
-          { network: options?.network ?? 'testnet' }
-        )
-      }
-    }
-    if (userData?.avatar !== this.user?.avatar && !isNil(userData?.avatar) && !isEmpty(userData?.avatar)) {
-      if (this.user?.avatarId === '') {
-        avatarRes = await this.createPin(
-          {
-            operation: 'create',
-            body: userData?.avatar,
-            path: `/info/avatar`,
-            encoding: 'base64',
-            contentType: 'image/jpeg;binary',
-            flag: 'metaid',
-          },
-          { network: options?.network ?? 'testnet' }
-        )
-      } else {
-        avatarRes = await this.createPin(
-          {
-            operation: 'modify',
-            body: userData?.avatar,
-            path: `@${this?.user?.avatarId ?? ''}`,
-            encoding: 'base64',
-            contentType: 'image/jpeg;binary',
-            flag: 'metaid',
-          },
-          { network: options?.network ?? 'testnet' }
-        )
-      }
+    const createOrModifyPin = async (
+      field: string,
+      value: string,
+      id: string,
+      encoding?: BufferEncoding,
+      contentType?: string
+    ) => {
+      const operation = id === '' ? 'create' : 'modify'
+      const path = id === '' ? `/info/${field}` : `@${id}`
+      return await this.createPin(
+        {
+          operation,
+          body: value,
+          path,
+          encoding,
+          contentType,
+          flag: 'metaid',
+        },
+        { network: options?.network ?? 'testnet' }
+      )
     }
 
-    return { nameRes, bioRes, avatarRes }
+    const nameRes =
+      userData?.name !== this.user?.name && !isNil(userData?.name) && !isEmpty(userData?.name)
+        ? await createOrModifyPin('name', userData.name, this.user?.nameId ?? '')
+        : undefined
+
+    const bioRes =
+      userData?.bio !== this.user?.bio && !isNil(userData?.bio) && !isEmpty(userData?.bio)
+        ? await createOrModifyPin('bio', userData.bio, this.user?.bioId ?? '')
+        : undefined
+
+    const avatarRes =
+      userData?.avatar !== this.user?.avatar && !isNil(userData?.avatar) && !isEmpty(userData?.avatar)
+        ? await createOrModifyPin('avatar', userData.avatar, this.user?.avatarId ?? '', 'base64', 'image/jpeg;binary')
+        : undefined
+
+    const backgroundRes =
+      userData?.background !== this.user?.background && !isNil(userData?.background) && !isEmpty(userData?.background)
+        ? await createOrModifyPin(
+            'background',
+            userData.background,
+            this.user?.backgroundId ?? '',
+            'base64',
+            'image/jpeg;binary'
+          )
+        : undefined
+
+    return { nameRes, bioRes, avatarRes, backgroundRes }
   }
+
   async createUserInfo({
     userData,
     options,
@@ -258,49 +220,40 @@ export class MvcConnector implements IMvcConnector {
       name: string
       bio?: string
       avatar?: string
+      background?: string
     }
     options: { feeRate?: number; network?: BtcNetwork }
   }): Promise<{
     nameRes: CreatePinResult
     bioRes: CreatePinResult | undefined
     avatarRes: CreatePinResult | undefined
+    backgroundRes: CreatePinResult | undefined
   }> {
-    let bioRes: CreatePinResult | undefined
-    let avatarRes: CreatePinResult | undefined
-    const nameRes = await this.createPin(
-      {
-        operation: 'create',
-        body: userData.name,
-        path: '/info/name',
-        flag: 'metaid',
-      },
-      { network: options?.network ?? 'testnet' }
-    )
-    if (!isEmpty(userData?.bio ?? '')) {
-      bioRes = await this.createPin(
+    const createPin = async (body: string, path: string, encoding?: BufferEncoding, contentType?: string) => {
+      return await this.createPin(
         {
           operation: 'create',
-          body: userData.bio,
-          path: '/info/bio',
+          body,
+          path,
+          encoding,
+          contentType,
           flag: 'metaid',
         },
         { network: options?.network ?? 'testnet' }
       )
     }
-    if (!isEmpty(userData?.avatar ?? '')) {
-      avatarRes = await this.createPin(
-        {
-          operation: 'create',
-          body: userData?.avatar,
-          path: '/info/avatar',
-          encoding: 'base64',
-          flag: 'metaid',
-          contentType: 'image/jpeg;binary',
-        },
-        { network: options?.network ?? 'testnet' }
-      )
-    }
-    return { nameRes, bioRes, avatarRes }
+
+    const nameRes = await createPin(userData.name, '/info/name')
+
+    const bioRes = !isEmpty(userData?.bio ?? '') ? await createPin(userData.bio, '/info/bio') : undefined
+    const avatarRes = !isEmpty(userData?.avatar ?? '')
+      ? await createPin(userData.avatar, '/info/avatar', 'base64', 'image/jpeg;binary')
+      : undefined
+    const backgroundRes = !isEmpty(userData?.background ?? '')
+      ? await createPin(userData.background, '/info/background', 'base64', 'image/jpeg;binary')
+      : undefined
+
+    return { nameRes, bioRes, avatarRes, backgroundRes }
   }
 
   // metaid

@@ -1,36 +1,11 @@
-import { TxComposer, mvc } from 'meta-contract'
-
-import {
-  fetchUser,
-  fetchBuzzes,
-  fetchRootCandidate,
-  fetchRoot,
-  fetchUtxos,
-  notify,
-  type User,
-  fetchOneBuzz,
-} from '@/service/mvc.js'
+import { fetchBuzzes, fetchOneBuzz } from '@/service/mvc.js'
 import { connected } from '@/decorators/connected.js'
-import { buildRootOpreturn, buildOpreturn, buildUserOpreturn } from '@/utils/opreturn-builder.js'
 import { errors } from '@/data/errors.js'
-import { UTXO_DUST } from '@/data/constants.js'
 import { type Transaction } from '@/wallets/metalet/mvcWallet.js'
 import type { EntitySchema } from '@/metaid-entities/entity.js'
 import type { MvcConnector } from '../../connector/mvc.js'
-import { MetaidData, SubMetaidData } from '@/types/index.js'
+import { MetaidData } from '@/types/index.js'
 import { BtcNetwork } from '@/service/btc.js'
-
-type Root = {
-  id: string
-  nodeName: string
-  address: string
-  txid: string
-  publicKey: string
-  parentTxid: string
-  parentPublicKey: string
-  version: string
-  createdAt: number
-}
 
 export class MvcEntity {
   public connector: MvcConnector
@@ -78,7 +53,7 @@ export class MvcEntity {
       transactions?: Transaction[]
     }
   }) {
-    const path = data.path ?? this.schema.path
+    const path = data?.path ?? this.schema.path
     const operation = data.operation ?? 'create'
     // console.log('pin path', path)
     const _options = { ...options, network: options.network ?? 'testnet' }

@@ -206,6 +206,7 @@ export class BtcConnector implements IBtcConnector {
       name?: string
       bio?: string
       avatar?: string
+      background?: string
     }
     options?: {
       network?: BtcNetwork
@@ -219,131 +220,75 @@ export class BtcConnector implements IBtcConnector {
     nameRes: InscribeResultForYesBroadcast | undefined
     bioRes: InscribeResultForYesBroadcast | undefined
     avatarRes: InscribeResultForYesBroadcast | undefined
+    backgroundRes: InscribeResultForYesBroadcast | undefined
   }> {
     let nameRes: InscribeResultForYesBroadcast | undefined
     let bioRes: InscribeResultForYesBroadcast | undefined
     let avatarRes: InscribeResultForYesBroadcast | undefined
+    let backgroundRes: InscribeResultForYesBroadcast | undefined
 
-    // path 传@pinId
+    const inscribeData = async (
+      field: string,
+      value: string,
+      id: string,
+      encoding?: BufferEncoding,
+      contentType?: string
+    ) => {
+      const operation = id === '' ? 'create' : 'modify'
+      const path = id === '' ? `/info/${field}` : `@${id}`
+      return await this.inscribe({
+        inscribeDataArray: [
+          {
+            operation,
+            body: value,
+            path,
+            encoding,
+            contentType,
+            flag: 'metaid',
+          },
+        ],
+        options: {
+          noBroadcast: 'no',
+          feeRate: options?.feeRate ?? 1,
+          service: options?.service,
+          network: options?.network,
+        },
+      })
+    }
+
     if (userData?.name !== this.user?.name && !isNil(userData?.name) && !isEmpty(userData?.name)) {
-      if (this.user?.nameId === '') {
-        nameRes = await this.inscribe({
-          inscribeDataArray: [
-            {
-              operation: 'create',
-              body: userData?.name,
-              path: `/info/name`,
-              flag: 'metaid',
-            },
-          ],
-          options: {
-            noBroadcast: 'no',
-            feeRate: options?.feeRate ?? 1,
-            service: options?.service,
-            network: options?.network,
-          },
-        })
-      } else {
-        nameRes = await this.inscribe({
-          inscribeDataArray: [
-            {
-              operation: 'modify',
-              body: userData?.name,
-              path: `@${this?.user?.nameId ?? ''}`,
-              flag: 'metaid',
-            },
-          ],
-          options: {
-            noBroadcast: 'no',
-            feeRate: options?.feeRate ?? 1,
-            service: options?.service,
-            network: options?.network,
-          },
-        })
-      }
+      nameRes = await inscribeData('name', userData.name, this.user?.nameId ?? '')
     }
+
     if (userData?.bio !== this.user?.bio && !isNil(userData?.bio) && !isEmpty(userData?.bio)) {
-      console.log('run in bio')
-
-      if (this.user?.bioId === '') {
-        bioRes = await this.inscribe({
-          inscribeDataArray: [
-            {
-              operation: 'create',
-              body: userData?.bio,
-              path: `/info/bio`,
-              flag: 'metaid',
-            },
-          ],
-          options: {
-            noBroadcast: 'no',
-            feeRate: options?.feeRate ?? 1,
-            service: options?.service,
-            network: options?.network,
-          },
-        })
-      } else {
-        bioRes = await this.inscribe({
-          inscribeDataArray: [
-            {
-              operation: 'modify',
-              body: userData?.bio,
-              path: `@${this?.user?.bioId ?? ''}`,
-              flag: 'metaid',
-            },
-          ],
-          options: {
-            noBroadcast: 'no',
-            feeRate: options?.feeRate ?? 1,
-            service: options?.service,
-            network: options?.network,
-          },
-        })
-      }
+      bioRes = await inscribeData('bio', userData.bio, this.user?.bioId ?? '')
     }
+
     if (userData?.avatar !== this.user?.avatar && !isNil(userData?.avatar) && !isEmpty(userData?.avatar)) {
-      if (this.user?.avatarId === '') {
-        avatarRes = await this.inscribe({
-          inscribeDataArray: [
-            {
-              operation: 'create',
-              body: userData?.avatar,
-              path: `/info/avatar`,
-              encoding: 'base64',
-              contentType: 'image/jpeg;binary',
-              flag: 'metaid',
-            },
-          ],
-          options: {
-            noBroadcast: 'no',
-            feeRate: options?.feeRate ?? 1,
-            service: options?.service,
-            network: options?.network,
-          },
-        })
-      } else {
-        avatarRes = await this.inscribe({
-          inscribeDataArray: [
-            {
-              operation: 'modify',
-              body: userData?.avatar,
-              path: `@${this?.user?.avatarId ?? ''}`,
-              encoding: 'base64',
-              contentType: 'image/jpeg;binary',
-              flag: 'metaid',
-            },
-          ],
-          options: {
-            noBroadcast: 'no',
-            feeRate: options?.feeRate ?? 1,
-            service: options?.service,
-            network: options?.network,
-          },
-        })
-      }
+      avatarRes = await inscribeData(
+        'avatar',
+        userData.avatar,
+        this.user?.avatarId ?? '',
+        'base64',
+        'image/jpeg;binary'
+      )
     }
 
-    return { nameRes, bioRes, avatarRes }
+    if (
+      userData?.background !== this.user?.background &&
+      !isNil(userData?.background) &&
+      !isEmpty(userData?.background)
+    ) {
+      backgroundRes = await inscribeData(
+        'background',
+        userData.background,
+        this.user?.backgroundId ?? '',
+        'base64',
+        'image/jpeg;binary'
+      )
+    }
+
+    return { nameRes, bioRes, avatarRes, backgroundRes }
   }
 
   async createUserInfo({
@@ -354,6 +299,7 @@ export class BtcConnector implements IBtcConnector {
       name: string
       bio?: string
       avatar?: string
+      background?: string
     }
     options: {
       network?: BtcNetwork
@@ -367,34 +313,22 @@ export class BtcConnector implements IBtcConnector {
     nameRes: InscribeResultForYesBroadcast
     bioRes: InscribeResultForYesBroadcast | undefined
     avatarRes: InscribeResultForYesBroadcast | undefined
+    backgroundRes: InscribeResultForYesBroadcast | undefined
   }> {
-    let bioRes: InscribeResultForYesBroadcast | undefined
-    let avatarRes: InscribeResultForYesBroadcast | undefined
-    const nameRes = await this.inscribe({
-      inscribeDataArray: [
-        {
-          operation: 'create',
-          body: userData?.name,
-          path: '/info/name',
-          flag: 'metaid',
-        },
-      ],
-
-      options: {
-        noBroadcast: 'no',
-        feeRate: options?.feeRate ?? 1,
-        service: options?.service,
-        network: options?.network,
-      },
-    })
-    console.log('inscribe nameRes', nameRes)
-    if (!!userData?.bio) {
-      bioRes = await this.inscribe({
+    const inscribeData = async (
+      body: string,
+      path: string,
+      encoding?: BufferEncoding,
+      contentType?: string
+    ): Promise<InscribeResultForYesBroadcast> => {
+      return await this.inscribe({
         inscribeDataArray: [
           {
             operation: 'create',
-            body: userData?.bio,
-            path: '/info/bio',
+            body,
+            path,
+            encoding,
+            contentType,
             flag: 'metaid',
           },
         ],
@@ -406,30 +340,18 @@ export class BtcConnector implements IBtcConnector {
         },
       })
     }
-    if (!!userData?.avatar) {
-      avatarRes = await this.inscribe({
-        inscribeDataArray: [
-          {
-            operation: 'create',
-            body: userData?.avatar,
-            path: '/info/avatar',
-            encoding: 'base64',
-            contentType: 'image/jpeg;binary',
-            flag: 'metaid',
-          },
-        ],
 
-        options: {
-          noBroadcast: 'no',
-          feeRate: options?.feeRate ?? 1,
-          service: options?.service,
-          network: options?.network,
-        },
-      })
-      console.log('inscribe avatarRes', avatarRes)
-    }
+    const nameRes = await inscribeData(userData.name, '/info/name')
 
-    return { nameRes, bioRes, avatarRes }
+    const bioRes = userData.bio ? await inscribeData(userData.bio, '/info/bio') : undefined
+    const avatarRes = userData.avatar
+      ? await inscribeData(userData.avatar, '/info/avatar', 'base64', 'image/jpeg;binary')
+      : undefined
+    const backgroundRes = userData.background
+      ? await inscribeData(userData.background, '/info/background', 'base64', 'image/jpeg;binary')
+      : undefined
+
+    return { nameRes, bioRes, avatarRes, backgroundRes }
   }
 
   // metaid

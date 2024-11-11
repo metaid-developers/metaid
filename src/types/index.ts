@@ -12,6 +12,8 @@ export type UserInfo = {
   avatarId: string
   bio: string
   bioId: string
+  background: string
+  backgroundId: string
   soulbondToken: string
   unconfirmed: string
   isInit: boolean
@@ -46,4 +48,4 @@ export type InscriptionRequest = {
   }
 }
 
-export type SubMetaidData = Omit<MetaidData, 'revealAddr' | 'path'>
+export type SubMetaidData = Omit<MetaidData, 'revealAddr'>

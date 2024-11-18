@@ -1,6 +1,7 @@
 import { define } from '@/factories/define.js'
 import { useMvc, useBtc } from '@/factories/use.js'
 
+import { Connect } from '@/factories'
 import { mvcConnect, btcConnect } from '@/factories/connect.js'
 // import { LocalWallet } from '@/wallets/localwallet/local.js'
 import { MetaletWalletForMvc } from '@/wallets/metalet/mvc.js'
@@ -20,6 +21,7 @@ import type { IMvcConnector } from '@/core/connector/mvcConnector.js'
 import type { SubMetaidData, InscriptionRequest } from '@/types/index.js'
 import { loadBtc, loadMvc } from './factories/load.js'
 
+
 export {
   // Psbt,
   // Transaction,
@@ -28,6 +30,7 @@ export {
   useBtc,
   mvcConnect,
   btcConnect,
+  Connect,
   //LocalWallet,
   MetaletWalletForMvc,
   MetaletWalletForBtc,

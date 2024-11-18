@@ -3,6 +3,8 @@ import { mvcConnect, btcConnect } from '@/factories/connect.js'
 import { MetaletWalletForBtc, MetaletWalletForMvc } from '@metaid/metaid'
 import { MvcConnector } from '@/core/connector/mvc'
 import { BtcConnector } from '@/core/connector/btc'
+import { MetaletWalletForBtc as BtcWallet } from '@/wallets/metalet/btc'
+import { MetaletWalletForMvc as MvcWallet } from '@/wallets/metalet/mvc'
 
 class Connect {
   private mvcConnection: MvcConnector
@@ -13,8 +15,18 @@ class Connect {
   }
 
   private async initializeConnections() {
-    this.mvcConnection = await mvcConnect({ wallet: await MetaletWalletForMvc.create(), network: this.network })
-    this.btcConnection = await btcConnect({ wallet: await MetaletWalletForBtc.create(), network: this.network })
+    const {
+      btc: { address: btcAddress, pubKey: btcPubKey },
+      mvc: { address: mvcAddress, pubKey: mvcPubKey },
+    } = await window.metaidwallet.common.omniConnect()
+    const mvcWallet = await MetaletWalletForMvc.restore({ address: mvcAddress, xpub: mvcPubKey })
+    const btcWallet = await MetaletWalletForBtc.restore({
+      address: btcAddress,
+      pub: btcPubKey,
+      internal: window.metaidwallet,
+    })
+    this.mvcConnection = await mvcConnect({ wallet: mvcWallet, network: this.network })
+    this.btcConnection = await btcConnect({ wallet: btcWallet, network: this.network })
   }
 
   async use(chain: 'mvc' | 'btc', entitySymbol: string) {

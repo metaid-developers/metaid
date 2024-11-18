@@ -27,6 +27,18 @@ declare global {
       disconnect: () => Promise<void>
       getNetwork: () => Promise<{ network: Network; status?: string }>
       switchNetwork: (network: Network) => Promise<void>
+      common: {
+        omniConnect: () => Promise<{
+          btc: {
+            address: string
+            pubKey: string
+          }
+          mvc: {
+            address: string
+            pubKey: string
+          }
+        }>
+      }
       btc: {
         signPsbt: ({ psbtHex: string, options: any }) => Promise<string>
         signMessage: (msg: string) => Promise<string>

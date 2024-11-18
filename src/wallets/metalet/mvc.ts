@@ -36,7 +36,14 @@ export class MetaletWalletForMvc implements MetaIDWalletForMvc {
     return wallet
   }
 
-  static restore({ address, xpub }: { address: string; xpub: string }): MetaIDWalletForMvc {
+  static restore({
+    address,
+    xpub,
+  }: {
+    address: string
+    xpub: string
+    internal?: Window['metaidwallet']
+  }): MetaIDWalletForMvc {
     if (typeof window === 'undefined') {
       throw new Error(errors.NOT_IN_BROWSER)
     }

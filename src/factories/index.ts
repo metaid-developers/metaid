@@ -1,28 +1,31 @@
 import { BtcNetwork } from '@/service/btc'
 import { mvcConnect, btcConnect } from '@/factories/connect.js'
-import { MetaIDWalletForBtc } from '@/wallets/metalet/btcWallet'
-import { MetaIDWalletForMvc } from '@/wallets/metalet/mvcWallet'
+import { MetaletWalletForBtc, MetaletWalletForMvc } from '@metaid/metaid'
+import { MvcConnector } from '@/core/connector/mvc';
+import { BtcConnector } from '@/core/connector/btc';
 
-interface ChainWalletMap {
-  btc: MetaIDWalletForBtc
-  mvc: MetaIDWalletForMvc
-}
+class Connect {
+  private mvcConnection: MvcConnector;
+  private btcConnection: BtcConnector;
 
-export async function Connect<T extends keyof ChainWalletMap>({
-  chain,
-  wallet,
-  network,
-}: {
-  chain: T
-  wallet: ChainWalletMap[T]
-  network: BtcNetwork
-}) {
-  switch (chain) {
-    case 'mvc':
-      return await mvcConnect({ wallet: wallet as ChainWalletMap['mvc'], network })
-    case 'btc':
-      return await btcConnect({ wallet: wallet as ChainWalletMap['btc'], network })
-    default:
-      throw new Error(`Unsupported chain: ${chain}`)
+  constructor(private network: BtcNetwork) {
+    this.initializeConnections();
+  }
+
+  private async initializeConnections() {
+    this.mvcConnection = await mvcConnect({ wallet: await MetaletWalletForMvc.create(), network: this.network });
+    this.btcConnection = await btcConnect({ wallet: await MetaletWalletForBtc.create(), network: this.network });
+  }
+
+  async use(chain: 'mvc' | 'btc', entitySymbol: string) {
+    if (chain === 'mvc') {
+      return this.mvcConnection.use(entitySymbol);
+    } else if (chain === 'btc') {
+      return this.btcConnection.use(entitySymbol);
+    } else {
+      throw new Error(`Unsupported chain: ${chain}`);
+    }
   }
 }
+
+export default Connect;

@@ -87,6 +87,10 @@ export class MvcConnector implements IMvcConnector {
       serialAction?: 'combo' | 'finish'
       transactions?: Transaction[]
       network: BtcNetwork
+      service?: {
+        address: string
+        satoshis: number
+      }
     }
   ): Promise<CreatePinResult> {
     if (!this.isConnected) {
@@ -104,6 +108,12 @@ export class MvcConnector implements IMvcConnector {
       address: new mvc.Address(this.wallet.address, options.network),
       satoshis: 1,
     })
+    if (options?.service && options?.service.address && options?.service.satoshis) {
+      pinTxComposer.appendP2PKHOutput({
+        address: new mvc.Address(options.service.address, options.network),
+        satoshis: options.service.satoshis,
+      })
+    }
 
     const metaidOpreturn = buildOpReturnV2(metaidData, { network: options?.network ?? 'testnet' })
 

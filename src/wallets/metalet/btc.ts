@@ -16,7 +16,7 @@ export class MetaletWalletForBtc implements MetaIDWalletForBtc {
   public network: BtcNetwork
 
   public internal: Window['metaidwallet']
-  private constructor() {}
+  constructor() {}
 
   static async create(): Promise<MetaIDWalletForBtc> {
     // if it's not in the browser, throw an error

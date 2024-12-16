@@ -4,12 +4,13 @@ import { errors } from '@/data/errors.js'
 
 import { isNil } from 'ramda'
 import { BtcNetwork } from '@/service/btc.js'
+import { MetaletWalletForBtc } from '../metalet/btc.js'
 
 @staticImplements<WalletStatic>()
 export class LocalWalletForBtc implements MetaIDWalletForBtc {
   private mnemonic: string
   private derivePath: string
-  private internal: any | undefined
+  internal: any | undefined
   public address: string
   public pub: string
   public network: BtcNetwork

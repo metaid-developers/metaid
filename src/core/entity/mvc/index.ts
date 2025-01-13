@@ -51,6 +51,10 @@ export class MvcEntity {
       signMessage?: string
       serialAction?: 'combo' | 'finish'
       transactions?: Transaction[]
+      service?: {
+        address: string
+        satoshis: string
+      }
     }
   }) {
     const path = data?.path ?? this.schema.path

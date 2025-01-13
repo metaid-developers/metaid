@@ -110,10 +110,15 @@ export class BtcEntity {
       path?: string
       noBroadcast: T
       feeRate?: number
+      /* @deprecated */
       service?: {
         address: string
         satoshis: string
       }
+      outputs?: {
+        address: string
+        satoshis: string
+      }[]
       network?: BtcNetwork
     }
   }): Promise<InscribeResultForIfBroadcasting[T]> {

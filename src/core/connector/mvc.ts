@@ -89,7 +89,7 @@ export class MvcConnector implements IMvcConnector {
       network: BtcNetwork
       service?: {
         address: string
-        satoshis: number
+        satoshis: string
       }
     }
   ): Promise<CreatePinResult> {
@@ -116,7 +116,7 @@ export class MvcConnector implements IMvcConnector {
     if (options?.service && options?.service.address && options?.service.satoshis) {
       pinTxComposer.appendP2PKHOutput({
         address: new mvc.Address(options.service.address, options.network),
-        satoshis: options.service.satoshis,
+        satoshis: Number(options.service.satoshis),
       })
     }
 

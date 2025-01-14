@@ -91,6 +91,10 @@ export class MvcConnector implements IMvcConnector {
         address: string
         satoshis: string
       }
+      outputs?: {
+        address: string
+        satoshis: string
+      }[]
     }
   ): Promise<CreatePinResult> {
     if (!this.isConnected) {
@@ -112,12 +116,21 @@ export class MvcConnector implements IMvcConnector {
     const metaidOpreturn = buildOpReturnV2(metaidData, { network: options?.network ?? 'testnet' })
 
     pinTxComposer.appendOpReturnOutput(metaidOpreturn)
-    
+
     if (options?.service && options?.service.address && options?.service.satoshis) {
       pinTxComposer.appendP2PKHOutput({
         address: new mvc.Address(options.service.address, options.network),
         satoshis: Number(options.service.satoshis),
       })
+    }
+
+    if (options?.outputs) {
+      for (const output of options.outputs) {
+        pinTxComposer.appendP2PKHOutput({
+          address: new mvc.Address(output.address, options.network),
+          satoshis: Number(output.satoshis),
+        })
+      }
     }
 
     transactions.push({

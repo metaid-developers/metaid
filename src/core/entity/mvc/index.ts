@@ -55,13 +55,17 @@ export class MvcEntity {
         address: string
         satoshis: string
       }
+      outputs?: {
+        address: string
+        satoshis: string
+      }[]
     }
   }) {
     const path = data?.path ?? this.schema.path
     const operation = data.operation ?? 'create'
     // console.log('pin path', path)
     const _options = { ...options, network: options.network ?? 'testnet' }
-    const res = await this.connector.createPin({ ...data, operation, path }, _options)
+    const res = await this.connector.createPin({ ...data, operation, path, }, _options)
     console.log('res', res)
 
     return res

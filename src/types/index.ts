@@ -49,3 +49,10 @@ export type InscriptionRequest = {
 }
 
 export type SubMetaidData = Omit<MetaidData, 'revealAddr'>
+
+export enum Chain {
+  BTC = 'btc',
+  MVC = 'mvc',
+}
+
+export type NetworkType = 'mainnet' | 'testnet' | 'regtest'

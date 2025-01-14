@@ -1,4 +1,4 @@
-import { Network, InscriptionRequest } from './types'
+import { NetworkType, InscriptionRequest } from './types'
 
 // export type Tx = {
 //   address: string
@@ -20,13 +20,16 @@ declare global {
   interface Window {
     removeEventListener: any
     metaidwallet: {
+      isConnected: () => Promise<boolean>
+      getAddress: () => Promise<string>
+      getPublicKey: () => Promise<string>
       on: any
       removeListener: any
       getXPublicKey: () => Promise<string>
       connect: () => Promise<{ address: string; status?: string }>
       disconnect: () => Promise<void>
-      getNetwork: () => Promise<{ network: Network; status?: string }>
-      switchNetwork: (network: Network) => Promise<void>
+      getNetwork: () => Promise<{ network: NetworkType; status?: string }>
+      switchNetwork: (network: NetworkType) => Promise<void>
       common: {
         omniConnect: () => Promise<{
           btc: {

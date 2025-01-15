@@ -29,6 +29,10 @@ export type IBtcConnector = {
         address: string
         satoshis: string
       }
+      outputs?: {
+        address: string
+        satoshis: string
+      }[]
     }
   }): Promise<InscribeResultForIfBroadcasting[T]>
   updateUserInfo({

@@ -46,6 +46,10 @@ export type InscriptionRequest = {
     address: string
     satoshis: string
   }
+  outputs?: {
+    address: string
+    satoshis: string
+  }[]
 }
 
 export type SubMetaidData = Omit<MetaidData, 'revealAddr'>

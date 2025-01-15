@@ -110,6 +110,10 @@ export class BtcConnector implements IBtcConnector {
         address: string
         satoshis: string
       }
+      outputs?: {
+        address: string
+        satoshis: string
+      }[]
     }
   }): Promise<InscribeResultForIfBroadcasting[T]> {
     // const faucetUtxos = await fetchUtxos({
@@ -153,6 +157,7 @@ export class BtcConnector implements IBtcConnector {
       metaidDataList,
       changeAddress: this.address,
       service: options?.service,
+      outputs: options?.outputs,
     }
     console.log('request', request)
     const res = await this.wallet.inscribe({
